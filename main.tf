@@ -16,15 +16,16 @@ module "certificate_meta" {
 module "dns_meta" {
   source  = "registry.terraform.io/cloudposse/label/null"
   version = "0.25.0"
-  context = module.this.context
 
   namespace           = var.ssl_certificate_common_name
+  environment         = null
   stage               = null
   name                = null
   attributes          = []
   delimiter           = "."
   regex_replace_chars = "/[^a-zA-Z0-9-.]/"
   label_order         = ["name", "namespace"]
+  tags                = module.this.tags
 }
 
 module "self_signed_certificate_meta" {
@@ -83,9 +84,9 @@ resource "tls_cert_request" "self_signed_certificate_request" {
   key_algorithm   = "RSA"
   private_key_pem = tls_private_key.self_signed_certificate_private_key[0].private_key_pem
   dns_names       = [module.dns_meta.id, "*.${module.dns_meta.id}"]
-#  lifecycle {
-#    ignore_changes = [subject]
-#  }
+  #  lifecycle {
+  #    ignore_changes = [subject]
+  #  }
   subject {
     common_name = "*.${module.dns_meta.id}"
   }
@@ -95,9 +96,9 @@ resource "acme_certificate" "self_signed_acme_certificate" {
   count                   = module.self_signed_certificate_meta.enabled ? 1 : 0
   account_key_pem         = acme_registration.acme_registration[0].account_key_pem
   certificate_request_pem = tls_cert_request.self_signed_certificate_request[0].cert_request_pem
-#  lifecycle {
-#    ignore_changes = [dns_challenge]
-#  }
+  #  lifecycle {
+  #    ignore_changes = [dns_challenge]
+  #  }
   dns_challenge {
     provider = "route53"
   }
