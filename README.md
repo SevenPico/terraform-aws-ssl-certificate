@@ -1,1 +1,1 @@
-# aws-terraform-module-ssl-certificate
+# terraform-aws-ssl-certificate

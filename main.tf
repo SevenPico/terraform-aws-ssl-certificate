@@ -7,12 +7,6 @@ locals {
 #------------------------------------------------------------------------------
 # Certificate Meta
 #------------------------------------------------------------------------------
-module "certificate_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.this.context
-}
-
 module "dns_meta" {
   source  = "registry.terraform.io/cloudposse/label/null"
   version = "0.25.0"
@@ -31,7 +25,7 @@ module "dns_meta" {
 module "self_signed_certificate_meta" {
   source  = "registry.terraform.io/cloudposse/label/null"
   version = "0.25.0"
-  context = module.certificate_meta.context
+  context = module.this.context
   name    = "self-signed"
   enabled = var.ssl_certificate_create_self_signed
 }
@@ -45,18 +39,18 @@ module "certificate_secrets_kms_key_meta" {
 
 
 module "self_signed_certificate_secrets_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.self_signed_certificate_meta.context
-  name    = "configuration"
+  source     = "registry.terraform.io/cloudposse/label/null"
+  version    = "0.25.0"
+  context    = module.self_signed_certificate_meta.context
+  attributes = ["secret"]
 }
 
 module "trusted_ca_certificate_secrets_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.certificate_meta.context
-  name    = "configuration"
-  enabled = !var.ssl_certificate_create_self_signed
+  source     = "registry.terraform.io/cloudposse/label/null"
+  version    = "0.25.0"
+  context    = module.this.context
+  attributes = ["secret"]
+  enabled    = !var.ssl_certificate_create_self_signed
 }
 
 
@@ -116,7 +110,7 @@ module "ssl_certificates_kms_key" {
 
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
   deletion_window_in_days  = 30
-  description              = "KMS key for ${module.certificate_meta.id}"
+  description              = "KMS key for ${module.this.id}"
   enable_key_rotation      = false
   key_usage                = "ENCRYPT_DECRYPT"
 }
@@ -132,7 +126,6 @@ resource "aws_secretsmanager_secret" "self_signed_ssl_certificate" {
   kms_key_id  = module.ssl_certificates_kms_key.key_id
   description = "SSL Certificate Values"
   lifecycle {
-    //    ignore_changes  = [name]
     prevent_destroy = false
   }
 }
@@ -158,8 +151,8 @@ resource "aws_secretsmanager_secret_version" "self_signed_ssl_certificate" {
 resource "aws_secretsmanager_secret" "trusted_ca_ssl_certificate" {
   count       = module.trusted_ca_certificate_secrets_meta.enabled ? 1 : 0
   name_prefix = "${module.trusted_ca_certificate_secrets_meta.id}-"
-
   tags        = module.trusted_ca_certificate_secrets_meta.tags
+  kms_key_id  = module.ssl_certificates_kms_key.key_id
   description = "SSL Certificate Values"
   lifecycle {
     prevent_destroy = false
@@ -186,7 +179,7 @@ resource "aws_secretsmanager_secret_version" "trusted_ca_ssl_certificate" {
 # ACM - Lookup Certificate Secrets
 #------------------------------------------------------------------------------
 data "aws_secretsmanager_secret" "ssl_certificate_values" {
-  count = module.certificate_meta.enabled ? 1 : 0
+  count = module.this.enabled ? 1 : 0
   depends_on = [
     aws_secretsmanager_secret.self_signed_ssl_certificate[0],
     aws_secretsmanager_secret_version.self_signed_ssl_certificate[0],
@@ -198,7 +191,7 @@ data "aws_secretsmanager_secret" "ssl_certificate_values" {
 }
 
 data "aws_secretsmanager_secret_version" "ssl_certificate_values" {
-  count         = module.certificate_meta.enabled ? 1 : 0
+  count         = module.this.enabled ? 1 : 0
   depends_on    = [aws_secretsmanager_secret_version.self_signed_ssl_certificate, aws_secretsmanager_secret_version.trusted_ca_ssl_certificate]
   secret_id     = data.aws_secretsmanager_secret.ssl_certificate_values[0].id
   version_stage = "AWSCURRENT"
@@ -209,9 +202,9 @@ data "aws_secretsmanager_secret_version" "ssl_certificate_values" {
 # Provide a handle to the Certificate Values regardless of imported or created
 #------------------------------------------------------------------------------
 locals {
-  ssl_private_key       = module.certificate_meta.enabled ? jsondecode(data.aws_secretsmanager_secret_version.ssl_certificate_values[0].secret_string)[var.ssl_certificate_secretsmanager_certificate_private_key_keyname] : null
-  ssl_certificate       = module.certificate_meta.enabled ? jsondecode(data.aws_secretsmanager_secret_version.ssl_certificate_values[0].secret_string)[var.ssl_certificate_secretsmanager_certificate_keyname] : null
-  ssl_certificate_chain = module.certificate_meta.enabled ? jsondecode(data.aws_secretsmanager_secret_version.ssl_certificate_values[0].secret_string)[var.ssl_certificate_secretsmanager_certificate_chain_keyname] : null
+  ssl_private_key       = module.this.enabled ? jsondecode(data.aws_secretsmanager_secret_version.ssl_certificate_values[0].secret_string)[var.ssl_certificate_secretsmanager_certificate_private_key_keyname] : null
+  ssl_certificate       = module.this.enabled ? jsondecode(data.aws_secretsmanager_secret_version.ssl_certificate_values[0].secret_string)[var.ssl_certificate_secretsmanager_certificate_keyname] : null
+  ssl_certificate_chain = module.this.enabled ? jsondecode(data.aws_secretsmanager_secret_version.ssl_certificate_values[0].secret_string)[var.ssl_certificate_secretsmanager_certificate_chain_keyname] : null
 }
 
 
@@ -223,9 +216,10 @@ resource "aws_acm_certificate" "self_signed_certificate" {
   certificate_body  = local.ssl_certificate
   certificate_chain = local.ssl_certificate_chain
   private_key       = local.ssl_private_key
-  tags              = module.certificate_meta.tags
+  tags              = module.this.tags
   lifecycle {
     create_before_destroy = true
+    ignore_changes        = [tags]
   }
 }
 
@@ -235,9 +229,10 @@ resource "aws_acm_certificate" "self_signed_certificate_cloudfront_region" {
   certificate_body  = local.ssl_certificate
   certificate_chain = local.ssl_certificate_chain
   private_key       = local.ssl_private_key
-  tags              = module.certificate_meta.tags
+  tags              = module.this.tags
   lifecycle {
     create_before_destroy = true
+    ignore_changes        = [tags]
   }
 }
 
@@ -246,9 +241,10 @@ resource "aws_acm_certificate" "trusted_ca_certificate" {
   certificate_body  = local.ssl_certificate
   certificate_chain = local.ssl_certificate_chain
   private_key       = local.ssl_private_key
-  tags              = module.certificate_meta.tags
+  tags              = module.this.tags
   lifecycle {
     create_before_destroy = true
+    ignore_changes        = [tags]
   }
 }
 
@@ -258,8 +254,9 @@ resource "aws_acm_certificate" "trusted_ca_certificate_cloudfront_region" {
   certificate_body  = local.ssl_certificate
   certificate_chain = local.ssl_certificate_chain
   private_key       = local.ssl_private_key
-  tags              = module.certificate_meta.tags
+  tags              = module.this.tags
   lifecycle {
     create_before_destroy = true
+    ignore_changes        = [tags]
   }
 }
