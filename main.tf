@@ -137,7 +137,6 @@ resource "aws_secretsmanager_secret_version" "self_signed_ssl_certificate" {
   secret_id  = aws_secretsmanager_secret.self_signed_ssl_certificate[0].id
 
   lifecycle {
-    ignore_changes = [secret_binary, secret_string]
     prevent_destroy = false
   }
   secret_string = jsonencode(merge({
