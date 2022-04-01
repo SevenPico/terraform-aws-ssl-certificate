@@ -3,7 +3,7 @@ output "kms_key_arn" {
 }
 
 output "acm_certificate_arn" {
-  value = var.ssl_certificate_create_self_signed ? aws_acm_certificate.self_signed_certificate[0].arn : aws_acm_certificate.trusted_ca_certificate[0].arn
+  value = var.ssl_certificate_create_self_signed ? join("", aws_acm_certificate.self_signed_certificate.*.arn) : join("", aws_acm_certificate.trusted_ca_certificate.*.arn)
 }
 
 locals {
@@ -13,7 +13,7 @@ locals {
   acm_self_signed_arn                        = local.is_cloudfront_region && var.ssl_certificate_create_self_signed ? aws_acm_certificate.self_signed_certificate : null
 
   temp_acm_certificate_cloudfront_region_arn = coalesce(local.acm_trusted_ca_cloudfront_region_arn, local.acm_self_signed_cloudfront_region_arn, local.acm_trusted_ca_arn, local.acm_self_signed_arn)
-  acm_certificate_cloudfront_region_arn      = length(local.temp_acm_certificate_cloudfront_region_arn) > 0 ? local.temp_acm_certificate_cloudfront_region_arn[0].arn : null
+  acm_certificate_cloudfront_region_arn      = length(local.temp_acm_certificate_cloudfront_region_arn) > 0 ? join("", local.temp_acm_certificate_cloudfront_region_arn.*.arn) : null
 }
 
 output "acm_certificate_cloudfront_region_arn" {
@@ -21,15 +21,15 @@ output "acm_certificate_cloudfront_region_arn" {
 }
 
 output "secretsmanager_arn" {
-  value = data.aws_secretsmanager_secret.ssl_certificate_values[0].arn
+  value = join("", data.aws_secretsmanager_secret.ssl_certificate_values.*.arn)
 }
 
 output "secretsmanager_id" {
-  value = data.aws_secretsmanager_secret.ssl_certificate_values[0].id
+  value = join("", data.aws_secretsmanager_secret.ssl_certificate_values.*.id)
 }
 
 output "secretsmanager_version_arn" {
-  value = data.aws_secretsmanager_secret_version.ssl_certificate_values[0].arn
+  value = join("", data.aws_secretsmanager_secret_version.ssl_certificate_values.*.arn)
 }
 
 output "secretsmanager_certificate_chain_keyname" {

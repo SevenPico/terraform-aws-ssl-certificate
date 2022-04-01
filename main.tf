@@ -11,6 +11,7 @@ module "dns_meta" {
   source  = "registry.terraform.io/cloudposse/label/null"
   version = "0.25.0"
 
+  enabled             = module.this.enabled
   namespace           = var.ssl_certificate_common_name
   environment         = null
   stage               = null
@@ -23,11 +24,11 @@ module "dns_meta" {
 }
 
 module "self_signed_certificate_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.this.context
-  name    = "self-signed"
-  enabled = var.ssl_certificate_create_self_signed
+  source     = "registry.terraform.io/cloudposse/label/null"
+  version    = "0.25.0"
+  context    = module.this.context
+  attributes = ["self-signed"]
+  enabled    = var.ssl_certificate_create_self_signed && module.this.enabled
 }
 
 module "certificate_secrets_kms_key_meta" {
@@ -50,7 +51,7 @@ module "trusted_ca_certificate_secrets_meta" {
   version    = "0.25.0"
   context    = module.this.context
   attributes = ["secret"]
-  enabled    = !var.ssl_certificate_create_self_signed
+  enabled    = !var.ssl_certificate_create_self_signed && module.this.enabled
 }
 
 
@@ -134,7 +135,9 @@ resource "aws_secretsmanager_secret_version" "self_signed_ssl_certificate" {
   count      = module.self_signed_certificate_secrets_meta.enabled ? 1 : 0
   depends_on = [aws_secretsmanager_secret.self_signed_ssl_certificate]
   secret_id  = aws_secretsmanager_secret.self_signed_ssl_certificate[0].id
+
   lifecycle {
+    ignore_changes = [secret_binary, secret_string]
     prevent_destroy = false
   }
   secret_string = jsonencode(merge({
@@ -237,7 +240,7 @@ resource "aws_acm_certificate" "self_signed_certificate_cloudfront_region" {
 }
 
 resource "aws_acm_certificate" "trusted_ca_certificate" {
-  count             = module.self_signed_certificate_meta.enabled ? 0 : 1
+  count             = module.trusted_ca_certificate_secrets_meta.enabled ? 1 : 0
   certificate_body  = local.ssl_certificate
   certificate_chain = local.ssl_certificate_chain
   private_key       = local.ssl_private_key
@@ -249,7 +252,7 @@ resource "aws_acm_certificate" "trusted_ca_certificate" {
 }
 
 resource "aws_acm_certificate" "trusted_ca_certificate_cloudfront_region" {
-  count             = !module.self_signed_certificate_meta.enabled && !local.is_cloudfront_region ? 1 : 0
+  count             = module.trusted_ca_certificate_secrets_meta.enabled && !local.is_cloudfront_region ? 1 : 0
   provider          = aws.cloudfront
   certificate_body  = local.ssl_certificate
   certificate_chain = local.ssl_certificate_chain

@@ -1,4 +1,4 @@
-enabled             = true
+enabled             = false
 namespace           = "sevenpico"
 environment         = "test"
 stage               = "ssl-certificate"
