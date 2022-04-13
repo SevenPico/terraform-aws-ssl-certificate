@@ -4,7 +4,7 @@ module "ssl_certificate" {
   context = module.this.context
 
   ssl_certificate_common_name                    = var.ssl_certificate_common_name
-  ssl_certificate_create_self_signed             = var.ssl_certificate_create_self_signed
+  ssl_certificate_create_letsencrypt             = var.ssl_certificate_create_letsencrypt
   ssl_certificate_additional_certificate_secrets = var.ssl_certificate_additional_certificate_secrets
 
   ssl_certificate_secretsmanager_certificate_keyname             = var.ssl_certificate_secretsmanager_certificate_keyname

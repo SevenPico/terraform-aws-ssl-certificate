@@ -1,8 +1,15 @@
-variable "ssl_certificate_create_self_signed" {
+variable "ssl_certificate_create_letsencrypt" {
   default     = true
   type        = bool
   description = "If this is set to true, self-signed certificate values will be created."
 }
+
+variable "ssl_certificate_create_self_signed" {
+  default     = null
+  type        = bool
+  description = "[DEPRECATED] Use `ssl_certificate_create_letsencrypt` instead."
+}
+
 variable "ssl_certificate_common_name" {
   type        = string
   description = "The domain name that the certificate will be created for.  Currently this value will be wild-carded."
