@@ -40,7 +40,7 @@ output "certificate_content" {
 }
 
 output "certificate_private_key_content" {
-  value = local.certificate_private_key
+  value = local.private_key
 }
 
 output "certificate_chain_content" {

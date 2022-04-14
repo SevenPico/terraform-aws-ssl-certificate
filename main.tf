@@ -83,17 +83,17 @@ resource "acme_certificate" "letsencrypt_acme_certificate" {
 # Provide a handle to the Certificate Values regardless of imported or created
 #------------------------------------------------------------------------------
 locals {
-  trusted_ca_certificate       = (var.ssl_certificate_trusted_ca_signed_certificate_filepath             != null) ? file(var.ssl_certificate_trusted_ca_signed_certificate_filepath) : ""
-  trusted_ca_certificate_chain = (var.ssl_certificate_trusted_ca_signed_certificate_chain_filepath       != null) ? file(var.ssl_certificate_trusted_ca_signed_certificate_chain_filepath) : ""
+  trusted_ca_certificate       = (var.ssl_certificate_trusted_ca_signed_certificate_filepath != null) ? file(var.ssl_certificate_trusted_ca_signed_certificate_filepath) : ""
+  trusted_ca_certificate_chain = (var.ssl_certificate_trusted_ca_signed_certificate_chain_filepath != null) ? file(var.ssl_certificate_trusted_ca_signed_certificate_chain_filepath) : ""
   trusted_ca_private_key       = (var.ssl_certificate_trusted_ca_signed_certificate_private_key_filepath != null) ? file(var.ssl_certificate_trusted_ca_signed_certificate_private_key_filepath) : ""
 
-  letsencrypt_certificate       = acme_certificate.letsencrypt_acme_certificate[0].certificate_pem
-  letsencrypt_certificate_chain = format("%s%s", acme_certificate.letsencrypt_acme_certificate[0].certificate_pem, acme_certificate.letsencrypt_acme_certificate[0].issuer_pem)
-  letsencrypt_private_key       = tls_private_key.letsencrypt_certificate_private_key[0].private_key_pem
+  letsencrypt_certificate       = one(acme_certificate.letsencrypt_acme_certificate[*].certificate_pem)
+  letsencrypt_certificate_chain = join("", flatten([acme_certificate.letsencrypt_acme_certificate[*].certificate_pem, acme_certificate.letsencrypt_acme_certificate[*].issuer_pem]))
+  letsencrypt_private_key       = one(tls_private_key.letsencrypt_certificate_private_key[*].private_key_pem)
 
   certificate             = (var.ssl_certificate_create_letsencrypt) ? local.letsencrypt_certificate : local.trusted_ca_certificate
   certificate_chain       = (var.ssl_certificate_create_letsencrypt) ? local.letsencrypt_certificate_chain : local.trusted_ca_certificate_chain
-  certificate_private_key = (var.ssl_certificate_create_letsencrypt) ? local.letsencrypt_private_key : local.trusted_ca_private_key
+  private_key             = (var.ssl_certificate_create_letsencrypt) ? local.letsencrypt_private_key : local.trusted_ca_private_key
 }
 
 #------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ resource "aws_secretsmanager_secret_version" "ssl_certificate" {
   secret_string = jsonencode(merge({
     "${var.ssl_certificate_secretsmanager_certificate_keyname}"             = local.certificate
     "${var.ssl_certificate_secretsmanager_certificate_chain_keyname}"       = local.certificate_chain
-    "${var.ssl_certificate_secretsmanager_certificate_private_key_keyname}" = local.certificate_private_key
+    "${var.ssl_certificate_secretsmanager_certificate_private_key_keyname}" = local.private_key
   }, var.ssl_certificate_additional_certificate_secrets))
 }
 
@@ -148,7 +148,7 @@ resource "aws_acm_certificate" "certificate" {
   count             = module.certificate_secrets_meta.enabled ? 1 : 0
   certificate_body  = local.certificate
   certificate_chain = local.certificate_chain
-  private_key       = local.certificate_private_key
+  private_key       = local.private_key
   tags              = module.this.tags
   lifecycle {
     create_before_destroy = true
@@ -170,7 +170,7 @@ resource "aws_acm_certificate" "certificate_cloudfront_region" {
   provider          = aws.cloudfront
   certificate_body  = local.certificate
   certificate_chain = local.certificate_chain
-  private_key       = local.certificate_private_key
+  private_key       = local.private_key
   tags              = module.this.tags
   lifecycle {
     create_before_destroy = true
