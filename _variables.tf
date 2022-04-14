@@ -1,13 +1,7 @@
 variable "ssl_certificate_create_letsencrypt" {
   default     = true
   type        = bool
-  description = "If this is set to true, self-signed certificate values will be created."
-}
-
-variable "ssl_certificate_create_self_signed" {
-  default     = null
-  type        = bool
-  description = "[DEPRECATED] Use `ssl_certificate_create_letsencrypt` instead."
+  description = "If this is set to true, Let's Encrypt certificate values will be created."
 }
 
 variable "ssl_certificate_common_name" {
