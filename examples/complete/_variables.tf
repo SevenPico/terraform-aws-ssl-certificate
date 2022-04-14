@@ -1,5 +1,5 @@
 
-variable "ssl_certificate_create_self_signed" {}
+variable "ssl_certificate_create_letsencrypt" {}
 variable "ssl_certificate_common_name" {}
 
 variable "ssl_certificate_trusted_ca_signed_certificate_filepath" { default = null }

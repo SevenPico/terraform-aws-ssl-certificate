@@ -49,7 +49,7 @@ output "secretsmanager_id" {
   value = module.ssl_certificate.secretsmanager_id
 }
 
-output "secretsmanager_version_arn" {
-  value = module.ssl_certificate.secretsmanager_version_arn
-  sensitive = true
-}
+# output "secretsmanager_version_arn" {
+#   value = module.ssl_certificate.secretsmanager_version_arn
+#   sensitive = true
+# }
