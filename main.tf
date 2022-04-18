@@ -184,7 +184,6 @@ resource "aws_acm_certificate" "certificate" {
   private_key       = local.private_key
   tags              = module.this.tags
   lifecycle {
-    prevent_destroy       = true
     create_before_destroy = true
     ignore_changes        = [tags]
   }
@@ -207,7 +206,6 @@ resource "aws_acm_certificate" "certificate_cloudfront_region" {
   private_key       = local.private_key
   tags              = module.this.tags
   lifecycle {
-    prevent_destroy       = true
     create_before_destroy = true
     ignore_changes        = [tags]
   }
