@@ -103,6 +103,34 @@ locals {
 #------------------------------------------------------------------------------
 # SSL Certificate SecretsManager Secret - KMS Keys
 #--------------------------------------------------------------------------
+data "aws_iam_policy_document" "kms_key_access_policy_doc" {
+  statement {
+    effect    = "Allow"
+    actions   = ["kms:*"]
+    resources = ["*"]
+
+    principals {
+      type = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = toset(var.secret_allowed_accounts)
+    content {
+      effect    = "Allow"
+      actions   = ["kms:Decrypt"]
+      resources = ["*"]
+
+      principals {
+        type = "AWS"
+        identifiers = ["arn:aws:iam::${statement.value}:root"]
+      }
+    }
+
+  }
+}
+
 resource "aws_kms_key" "ssl_certificates_kms_key" {
   count                    = module.this.enabled ? 1 : 0
   description              = "KMS key for ${module.this.id}"
@@ -111,46 +139,36 @@ resource "aws_kms_key" "ssl_certificates_kms_key" {
   deletion_window_in_days  = 30
   enable_key_rotation      = false
   tags                     = module.certificate_secrets_kms_key_meta.tags
-
-  policy = length(var.secret_allowed_principals) == 0 ? null : jsonencode({
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = "kms:*"
-        Resource = "*"
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
-      },
-      {
-        Effect = "Allow"
-        Action = "kms:Decrypt"
-        Resource = "*"
-        Principal = var.secret_allowed_principals
-      }
-    ]
-  })
+  policy                   = data.aws_iam_policy_document.kms_key_access_policy_doc.json
 }
 
 
 #------------------------------------------------------------------------------
 # SSL Certificate SecretsManager Secret
 #------------------------------------------------------------------------------
+data "aws_iam_policy_document" "secret_access_policy_doc" {
+  dynamic "statement" {
+    for_each = toset(var.secret_allowed_accounts)
+    content {
+      effect    = "Allow"
+      actions   = ["secretsmanager:GetSecretValue"]
+      resources = ["*"]
+
+      principals {
+        type = "AWS"
+        identifiers = ["arn:aws:iam::${statement.value}:root"]
+      }
+    }
+  }
+}
+
 resource "aws_secretsmanager_secret" "ssl_certificate" {
   count       = (module.certificate_secrets_meta.enabled && !local.prevent_destroy_secret) ? 1 : 0
   name_prefix = "${module.certificate_secrets_meta.id}-"
   tags        = module.certificate_secrets_meta.tags
   kms_key_id  = one(aws_kms_key.ssl_certificates_kms_key[*].key_id)
   description = "SSL Certificate Values"
-
-  policy = length(var.secret_allowed_principals) == 0 ? null : jsonencode({
-    Statement = [{
-      Effect = "Allow"
-      Action = "secretsmanager:GetSecretValue"
-      Resource = "*"
-      Principal = var.secret_allowed_principals
-    }]
-  })
+  policy      = data.aws_iam_policy_document.secret_access_policy_doc.json
 }
 
 resource "aws_secretsmanager_secret_version" "ssl_certificate" {

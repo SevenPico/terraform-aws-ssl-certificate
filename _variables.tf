@@ -37,6 +37,6 @@ variable "additional_certificate_secrets" {
   default = {}
 }
 
-variable "secret_allowed_principals" {
-  type = map
+variable "secret_allowed_accounts" {
+  type = list(number)
 }
