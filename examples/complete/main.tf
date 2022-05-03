@@ -3,15 +3,15 @@ module "ssl_certificate" {
   source  = "../.."
   context = module.this.context
 
-  ssl_certificate_common_name                    = var.ssl_certificate_common_name
-  ssl_certificate_create_letsencrypt             = var.ssl_certificate_create_letsencrypt
-  ssl_certificate_additional_certificate_secrets = var.ssl_certificate_additional_certificate_secrets
+  common_name                    = var.common_name
+  create_letsencrypt             = var.create_letsencrypt
+  additional_certificate_secrets = var.additional_certificate_secrets
 
-  ssl_certificate_secretsmanager_certificate_keyname             = var.ssl_certificate_secretsmanager_certificate_keyname
-  ssl_certificate_secretsmanager_certificate_chain_keyname       = var.ssl_certificate_secretsmanager_certificate_chain_keyname
-  ssl_certificate_secretsmanager_certificate_private_key_keyname = var.ssl_certificate_secretsmanager_certificate_private_key_keyname
+  secretsmanager_certificate_keyname             = var.secretsmanager_certificate_keyname
+  secretsmanager_certificate_chain_keyname       = var.secretsmanager_certificate_chain_keyname
+  secretsmanager_certificate_private_key_keyname = var.secretsmanager_certificate_private_key_keyname
 
-  ssl_certificate_trusted_ca_signed_certificate_filepath             = var.ssl_certificate_trusted_ca_signed_certificate_filepath
-  ssl_certificate_trusted_ca_signed_certificate_chain_filepath       = var.ssl_certificate_trusted_ca_signed_certificate_chain_filepath
-  ssl_certificate_trusted_ca_signed_certificate_private_key_filepath = var.ssl_certificate_trusted_ca_signed_certificate_private_key_filepath
+  trusted_ca_signed_certificate_filepath             = var.trusted_ca_signed_certificate_filepath
+  trusted_ca_signed_certificate_chain_filepath       = var.trusted_ca_signed_certificate_chain_filepath
+  trusted_ca_signed_certificate_private_key_filepath = var.trusted_ca_signed_certificate_private_key_filepath
 }

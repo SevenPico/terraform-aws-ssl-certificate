@@ -6,7 +6,7 @@ module "dns_meta" {
   version = "0.25.0"
 
   enabled             = module.this.enabled
-  namespace           = var.ssl_certificate_common_name
+  namespace           = var.common_name
   environment         = null
   stage               = null
   name                = null
@@ -22,7 +22,7 @@ module "letsencrypt_meta" {
   version    = "0.25.0"
   context    = module.this.context
   attributes = ["letsencrypt"]
-  enabled    = var.ssl_certificate_create_letsencrypt && module.this.enabled
+  enabled    = var.create_letsencrypt && module.this.enabled
 }
 
 module "certificate_secrets_meta" {
@@ -38,6 +38,7 @@ module "certificate_secrets_kms_key_meta" {
   context    = module.certificate_secrets_meta.context
   attributes = ["kms", "key"]
 }
+
 
 #------------------------------------------------------------------------------
 # External Let's Encrypt Certificate (as needed)
@@ -83,11 +84,11 @@ resource "acme_certificate" "letsencrypt_acme_certificate" {
 # Provide a handle to the Certificate Values regardless of imported or created
 #------------------------------------------------------------------------------
 locals {
-  prevent_destroy_secret = !var.ssl_certificate_create_letsencrypt
+  prevent_destroy_secret = !var.create_letsencrypt
 
-  trusted_ca_certificate       = (var.ssl_certificate_trusted_ca_signed_certificate_filepath != null) ? file(var.ssl_certificate_trusted_ca_signed_certificate_filepath) : ""
-  trusted_ca_certificate_chain = (var.ssl_certificate_trusted_ca_signed_certificate_chain_filepath != null) ? file(var.ssl_certificate_trusted_ca_signed_certificate_chain_filepath) : ""
-  trusted_ca_private_key       = (var.ssl_certificate_trusted_ca_signed_certificate_private_key_filepath != null) ? file(var.ssl_certificate_trusted_ca_signed_certificate_private_key_filepath) : ""
+  trusted_ca_certificate       = (var.trusted_ca_signed_certificate_filepath != null) ? file(var.trusted_ca_signed_certificate_filepath) : ""
+  trusted_ca_certificate_chain = (var.trusted_ca_signed_certificate_chain_filepath != null) ? file(var.trusted_ca_signed_certificate_chain_filepath) : ""
+  trusted_ca_private_key       = (var.trusted_ca_signed_certificate_private_key_filepath != null) ? file(var.trusted_ca_signed_certificate_private_key_filepath) : ""
 
   letsencrypt_certificate       = one(acme_certificate.letsencrypt_acme_certificate[*].certificate_pem)
   letsencrypt_certificate_chain = join("", flatten([acme_certificate.letsencrypt_acme_certificate[*].certificate_pem, acme_certificate.letsencrypt_acme_certificate[*].issuer_pem]))
@@ -101,18 +102,36 @@ locals {
 
 #------------------------------------------------------------------------------
 # SSL Certificate SecretsManager Secret - KMS Keys
-#------------------------------------------------------------------------------
-module "ssl_certificates_kms_key" {
-  source  = "registry.terraform.io/cloudposse/kms-key/aws"
-  version = "0.12.1"
-  context = module.certificate_secrets_kms_key_meta.context
-
+#--------------------------------------------------------------------------
+resource "aws_kms_key" "ssl_certificates_kms_key" {
+  count                    = module.this.enabled ? 1 : 0
+  description              = "KMS key for ${module.this.id}"
+  key_usage                = "ENCRYPT_DECRYPT"
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
   deletion_window_in_days  = 30
-  description              = "KMS key for ${module.this.id}"
   enable_key_rotation      = false
-  key_usage                = "ENCRYPT_DECRYPT"
+  tags                     = module.certificate_secrets_kms_key_meta.tags
+
+  policy = length(var.secret_allowed_principals) == 0 ? null : jsonencode({
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "kms:*"
+        Resource = "*"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+      },
+      {
+        Effect = "Allow"
+        Action = "kms:Decrypt"
+        Resource = "*"
+        Principal = var.secret_allowed_principals
+      }
+    ]
+  })
 }
+
 
 #------------------------------------------------------------------------------
 # SSL Certificate SecretsManager Secret
@@ -121,19 +140,28 @@ resource "aws_secretsmanager_secret" "ssl_certificate" {
   count       = (module.certificate_secrets_meta.enabled && !local.prevent_destroy_secret) ? 1 : 0
   name_prefix = "${module.certificate_secrets_meta.id}-"
   tags        = module.certificate_secrets_meta.tags
-  kms_key_id  = module.ssl_certificates_kms_key.key_id
+  kms_key_id  = one(aws_kms_key.ssl_certificates_kms_key[*].key_id)
   description = "SSL Certificate Values"
+
+  policy = length(var.secret_allowed_principals) == 0 ? null : jsonencode({
+    Statement = [{
+      Effect = "Allow"
+      Action = "secretsmanager:GetSecretValue"
+      Resource = "*"
+      Principal = var.secret_allowed_principals
+    }]
+  })
 }
 
 resource "aws_secretsmanager_secret_version" "ssl_certificate" {
-  count       = (module.certificate_secrets_meta.enabled && !local.prevent_destroy_secret) ? 1 : 0
-  secret_id  = aws_secretsmanager_secret.ssl_certificate[0].id
+  count     = (module.certificate_secrets_meta.enabled && !local.prevent_destroy_secret) ? 1 : 0
+  secret_id = aws_secretsmanager_secret.ssl_certificate[0].id
 
   secret_string = jsonencode(merge({
-    "${var.ssl_certificate_secretsmanager_certificate_keyname}"             = local.certificate
-    "${var.ssl_certificate_secretsmanager_certificate_chain_keyname}"       = local.certificate_chain
-    "${var.ssl_certificate_secretsmanager_certificate_private_key_keyname}" = local.private_key
-  }, var.ssl_certificate_additional_certificate_secrets))
+    "${var.secretsmanager_certificate_keyname}"             = local.certificate
+    "${var.secretsmanager_certificate_chain_keyname}"       = local.certificate_chain
+    "${var.secretsmanager_certificate_private_key_keyname}" = local.private_key
+  }, var.additional_certificate_secrets))
 
   lifecycle {
     prevent_destroy = false
@@ -149,7 +177,7 @@ resource "aws_secretsmanager_secret" "ssl_certificate_prevent_destroy" {
   count       = (module.certificate_secrets_meta.enabled && local.prevent_destroy_secret) ? 1 : 0
   name_prefix = "${module.certificate_secrets_meta.id}-"
   tags        = module.certificate_secrets_meta.tags
-  kms_key_id  = module.ssl_certificates_kms_key.key_id
+  kms_key_id  = one(aws_kms_key.ssl_certificates_kms_key[*].key_id)
   description = "SSL Certificate Values"
 
   # no prevent_destroy for letsencrypt
@@ -159,13 +187,13 @@ resource "aws_secretsmanager_secret" "ssl_certificate_prevent_destroy" {
 }
 
 resource "aws_secretsmanager_secret_version" "ssl_certificate_prevent_destroy" {
-  count       = (module.certificate_secrets_meta.enabled && local.prevent_destroy_secret) ? 1 : 0
-  secret_id  = aws_secretsmanager_secret.ssl_certificate[0].id
+  count     = (module.certificate_secrets_meta.enabled && local.prevent_destroy_secret) ? 1 : 0
+  secret_id = aws_secretsmanager_secret.ssl_certificate[0].id
   secret_string = jsonencode(merge({
-    "${var.ssl_certificate_secretsmanager_certificate_keyname}"             = local.certificate
-    "${var.ssl_certificate_secretsmanager_certificate_chain_keyname}"       = local.certificate_chain
-    "${var.ssl_certificate_secretsmanager_certificate_private_key_keyname}" = local.private_key
-  }, var.ssl_certificate_additional_certificate_secrets))
+    "${var.secretsmanager_certificate_keyname}"             = local.certificate
+    "${var.secretsmanager_certificate_chain_keyname}"       = local.certificate_chain
+    "${var.secretsmanager_certificate_private_key_keyname}" = local.private_key
+  }, var.additional_certificate_secrets))
 
   lifecycle {
     prevent_destroy = true
@@ -193,6 +221,7 @@ resource "aws_acm_certificate" "certificate" {
 # Duplicate ACM Store for Cloudfront
 # ------------------------------------------------------------------------------
 data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
 
 locals {
   is_cloudfront_region = data.aws_region.current.name == "us-east-1"

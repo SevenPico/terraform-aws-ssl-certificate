@@ -1,5 +1,5 @@
 output "kms_key_arn" {
-  value = module.ssl_certificates_kms_key.key_arn
+  value = one(aws_kms_key.ssl_certificates_kms_key[*].arn)
 }
 
 output "acm_certificate_arn" {
@@ -23,15 +23,15 @@ output "secretsmanager_id" {
 # }
 
 output "secretsmanager_certificate_chain_keyname" {
-  value = var.ssl_certificate_secretsmanager_certificate_chain_keyname
+  value = var.secretsmanager_certificate_chain_keyname
 }
 
 output "secretsmanager_certificate_keyname" {
-  value = var.ssl_certificate_secretsmanager_certificate_keyname
+  value = var.secretsmanager_certificate_keyname
 }
 
 output "secretsmanager_certificate_private_key_keyname" {
-  value = var.ssl_certificate_secretsmanager_certificate_private_key_keyname
+  value = var.secretsmanager_certificate_private_key_keyname
 }
 
 output "certificate_content" {

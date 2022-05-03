@@ -3,6 +3,6 @@ provider "acme" {
 }
 
 provider "aws" {
-  alias = "cloudfront"
+  alias  = "cloudfront"
   region = "us-east-1"
 }
