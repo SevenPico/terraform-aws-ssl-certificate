@@ -1,3 +1,5 @@
+# prevent_destroy_secret = !var.create_letsencrypt
+
 module "certificate_secrets_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
