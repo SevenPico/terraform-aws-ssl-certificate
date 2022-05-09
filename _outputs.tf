@@ -1,5 +1,9 @@
 output "kms_key_arn" {
-  value = one(aws_kms_key.ssl_certificates_kms_key[*].arn)
+  value = one(aws_kms_key.this[*].arn)
+}
+
+output "kms_key_alias" {
+  value = one(aws_kms_alias.this[*].name)
 }
 
 output "acm_certificate_arn" {
@@ -17,10 +21,6 @@ output "secretsmanager_arn" {
 output "secretsmanager_id" {
   value = join("", aws_secretsmanager_secret.ssl_certificate[*].id)
 }
-
-# output "secretsmanager_version_arn" {
-#   value = join("", aws_secretsmanager_secret_version.ssl_certificate[*].arn)
-# }
 
 output "secretsmanager_certificate_chain_keyname" {
   value = var.secretsmanager_certificate_chain_keyname

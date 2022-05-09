@@ -40,3 +40,18 @@ variable "additional_certificate_secrets" {
 variable "secret_allowed_accounts" {
   type = list(number)
 }
+
+variable "create_sns_topic" {
+  type = bool
+  default = false
+}
+
+variable "sns_pub_principals" {
+  type = map
+  default = {}
+}
+
+variable "sns_sub_principals" {
+  type = map
+  default = {}
+}
