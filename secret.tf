@@ -1,16 +1,14 @@
-# prevent_destroy_secret = !var.create_letsencrypt
-
-module "certificate_secrets_meta" {
+module "secret_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
   context    = module.this.context
   attributes = ["secret"]
 }
 
-module "certificate_secrets_kms_key_meta" {
+module "secret_kms_key_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
-  context    = module.certificate_secrets_meta.context
+  context    = module.secret_meta.context
   attributes = ["kms", "key"]
 }
 
@@ -82,6 +80,8 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
   }
 }
 
+# prevent_destroy_secret = !var.create_letsencrypt
+
 resource "aws_secretsmanager_secret" "ssl_certificate" {
   count       = (module.certificate_secrets_meta.enabled && !local.prevent_destroy_secret) ? 1 : 0
   name_prefix = "${module.certificate_secrets_meta.id}-"
@@ -96,9 +96,9 @@ resource "aws_secretsmanager_secret_version" "ssl_certificate" {
   secret_id = aws_secretsmanager_secret.ssl_certificate[0].id
 
   secret_string = jsonencode(merge({
-    "${var.secretsmanager_certificate_keyname}"             = local.certificate
-    "${var.secretsmanager_certificate_chain_keyname}"       = local.certificate_chain
-    "${var.secretsmanager_certificate_private_key_keyname}" = local.private_key
+    var.certificate_keyname       = local.certificate
+    var.certificate_chain_keyname = local.certificate_chain
+    var.private_key_keyname       = local.private_key
   }, var.additional_certificate_secrets))
 
   lifecycle {

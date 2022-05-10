@@ -1,6 +1,3 @@
-# ------------------------------------------------------------------------------
-# Let's Encrypt Certificate
-# ------------------------------------------------------------------------------
 module "letsencrypt_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
