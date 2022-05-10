@@ -1,7 +1,7 @@
 variable "create_letsencrypt" {
   description = "If this is set to true, Let's Encrypt certificate values will be created."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "import_from_file" {
@@ -25,6 +25,7 @@ variable "import_secret_arn" {
 variable "common_name" {
   description = "The domain name that the certificate will be created for. Currently this value will be wild-carded."
   type        = string
+  default     = ""
 }
 
 variable "additional_secrets" {
