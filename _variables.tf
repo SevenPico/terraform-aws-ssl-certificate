@@ -62,6 +62,7 @@ variable "import_private_key_filepath" {
 
 variable "secret_allowed_accounts" {
   type = list(number)
+  default = []
 }
 
 variable "ignore_secret_changes" {

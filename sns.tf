@@ -110,3 +110,9 @@ resource "aws_cloudwatch_event_target" "secret_update" {
   arn       = one(aws_sns_topic.secret_update[*].arn)
   target_id = null
 }
+
+
+# ------------------------------------------------------------------------------
+#  Certificate Rotate SNS Topic
+# ------------------------------------------------------------------------------
+# TODO

@@ -76,8 +76,8 @@ locals {
     "${var.certificate_chain_keyname}" = local.certificate_chain
     "${var.private_key_keyname}"       = local.private_key
 
-    ACM_ARN     = one(aws_acm_certificate.default[*].arn)
-    ACM_CF_ARN  = one(aws_acm_certificate.cloudfront[*].arn)
+    ACM_ARN    = one(aws_acm_certificate.default[*].arn)
+    ACM_CF_ARN = one(aws_acm_certificate.cloudfront[*].arn)
   }
 }
 
@@ -86,7 +86,11 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
     for_each = toset(var.secret_allowed_accounts)
     content {
       effect    = "Allow"
-      actions   = ["secretsmanager:GetSecretValue"]
+      actions   = [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:GetResourcePolicy",
+        "secretsmanager:DescribeSecret"
+      ]
       resources = ["*"]
 
       principals {
@@ -98,7 +102,7 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
 }
 
 resource "aws_secretsmanager_secret" "this" {
-  count       = module.secret_meta.enabled ? 1 : 0
+  count = module.secret_meta.enabled ? 1 : 0
 
   description = "SSL Certificate Values"
   kms_key_id  = one(aws_kms_key.this[*].key_id)
@@ -108,19 +112,19 @@ resource "aws_secretsmanager_secret" "this" {
 }
 
 resource "aws_secretsmanager_secret_version" "default" {
-  count       = (module.secret_meta.enabled && !var.ignore_secret_changes) ? 1 : 0
+  count = (module.secret_meta.enabled && !var.ignore_secret_changes) ? 1 : 0
 
-  secret_id = one(aws_secretsmanager_secret.this[*].id)
+  secret_id     = one(aws_secretsmanager_secret.this[*].id)
   secret_string = jsonencode(merge(local.secrets, var.additional_secrets))
 }
 
 resource "aws_secretsmanager_secret_version" "ignore_changes" {
-  count       = (module.secret_meta.enabled && var.ignore_secret_changes) ? 1 : 0
+  count = (module.secret_meta.enabled && var.ignore_secret_changes) ? 1 : 0
 
-  secret_id = one(aws_secretsmanager_secret.this[*].id)
+  secret_id     = one(aws_secretsmanager_secret.this[*].id)
   secret_string = jsonencode(merge(local.secrets, var.additional_secrets))
 
   lifecycle {
-    ignore_changes  = [secret_string, secret_binary]
+    ignore_changes = [secret_string, secret_binary]
   }
 }
