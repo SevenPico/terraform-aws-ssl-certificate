@@ -16,6 +16,11 @@ variable "import_from_secret" {
   default     = false
 }
 
+variable "import_secret_arn" {
+  description = "ARN of exisiting SecretsManager secret containing certificate, private key and chain"
+  type = string
+  default = ""
+}
 
 variable "common_name" {
   description = "The domain name that the certificate will be created for. Currently this value will be wild-carded."
@@ -24,56 +29,59 @@ variable "common_name" {
 
 variable "additional_secrets" {
   description = "Additonal key-value pairs to add to the created SecretsManager secret"
-  type = map
-  default = {}
+  type        = map(any)
+  default     = {}
 }
 
-variable "imported_certificate_filepath" {
+variable "certificate_keyname" {
+  type    = string
+  default = "CERTIFICATE"
+}
+
+variable "private_key_keyname" {
+  type    = string
+  default = "CERTIFICATE_PRIVATE_KEY"
+}
+
+variable "certificate_chain_keyname" {
+  type    = string
+  default = "CERTIFICATE_CHAIN"
+}
+
+variable "import_certificate_filepath" {
   default = ""
 }
 
-variable "imported_certificate_chain_filepath" {
+variable "import_certificate_chain_filepath" {
   default = ""
 }
 
-variable "imported_private_key_filepath" {
+variable "import_private_key_filepath" {
   default = ""
 }
-
 
 variable "secret_allowed_accounts" {
   type = list(number)
 }
 
-
-variable "create_secret_update_sns" {
+variable "ignore_secret_changes" {
+  description = "Add ignore_change on SecretsManager secret values to allow later replacement of the secret"
   type = bool
   default = false
 }
 
+variable "create_secret_update_sns" {
+  type    = bool
+  default = false
+}
+
 variable "secret_update_sns_pub_principals" {
-  type = map
+  type    = map(any)
   default = {}
 }
 
 variable "secret_update_sns_sub_principals" {
-  type = map
+  type    = map(any)
   default = {}
-}
-
-
-variable "certificate_keyname" {
-  type = string
-  default = "CERTIFICATE"
-}
-
-variable "private_key_keyname" {
-  type = string
-  default = "CERTIFICATE_PRIVATE_KEY"
-}
-
-variable "certificate_chain_keyname" {
-  type = string
-  default = "CERTIFICATE_CHAIN"
 }
 

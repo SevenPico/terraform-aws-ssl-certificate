@@ -1,43 +1,43 @@
 # ------------------------------------------------------------------------------
-#  SSL Secret Change SNS Topic
+#  SSL Secret Update SNS Topic
 # ------------------------------------------------------------------------------
-module "sns_meta" {
+module "secret_update_sns_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
   context    = module.this.context
-  enabled    = module.this.enabled && var.create_sns_topic
+  enabled    = module.this.enabled && var.create_secret_update_sns
   attributes = ["sns"]
 }
 
-resource "aws_sns_topic" "this" {
-  count = module.sns_meta.enabled ? 1 : 0
+resource "aws_sns_topic" "secret_update" {
+  count = module.secret_update_sns_meta.enabled ? 1 : 0
 
-  name                        = module.sns_meta.id
-  display_name                = module.sns_meta.id
-  tags                        = module.sns_meta.tags
+  name                        = module.secret_update_sns_meta.id
+  display_name                = module.secret_update_sns_meta.id
+  tags                        = module.secret_update_sns_meta.tags
   kms_master_key_id           = ""
   delivery_policy             = null
   fifo_topic                  = false
   content_based_deduplication = false
 }
 
-resource "aws_sns_topic_policy" "this" {
-  count = module.sns_meta.enabled ? 1 : 0
+resource "aws_sns_topic_policy" "secret_update" {
+  count = module.secret_update_sns_meta.enabled ? 1 : 0
 
-  arn    = one(aws_sns_topic.this[*].arn)
-  policy = one(data.aws_iam_policy_document.sns[*].json)
+  arn    = one(aws_sns_topic.secret_update[*].arn)
+  policy = one(data.aws_iam_policy_document.sns_policy_doc[*].json)
 }
 
-data "aws_iam_policy_document" "sns" {
-  count = module.sns_meta.enabled ? 1 : 0
+data "aws_iam_policy_document" "sns_policy_doc" {
+  count = module.secret_update_sns_meta.enabled ? 1 : 0
 
-  policy_id = module.sns_meta.id
+  policy_id = module.secret_update_sns_meta.id
 
   statement {
     sid       = "Allow Pub"
     effect    = "Allow"
     actions   = ["SNS:Publish"]
-    resources = [one(aws_sns_topic.this[*].arn)]
+    resources = [one(aws_sns_topic.secret_update[*].arn)]
 
     principals {
       type = "Service"
@@ -48,9 +48,9 @@ data "aws_iam_policy_document" "sns" {
     }
 
     dynamic "principals" {
-      for_each = var.sns_pub_principals
+      for_each = var.secret_update_sns_pub_principals
       content {
-        type = principals.key
+        type        = principals.key
         identifiers = principals.value
       }
     }
@@ -60,12 +60,12 @@ data "aws_iam_policy_document" "sns" {
     sid       = "Allow Sub"
     effect    = "Allow"
     actions   = ["SNS:Subscribe"]
-    resources = [one(aws_sns_topic.this[*].arn)]
+    resources = [one(aws_sns_topic.secret_update[*].arn)]
 
     dynamic "principals" {
-      for_each = var.sns_sub_principals
+      for_each = var.secret_update_sns_sub_principals
       content {
-        type = principals.key
+        type        = principals.key
         identifiers = principals.value
       }
     }
@@ -74,16 +74,16 @@ data "aws_iam_policy_document" "sns" {
 
 
 # ------------------------------------------------------------------------------
-#  Secret Change CloudWatch Event to SNS
+#  Secret Update CloudWatch Event to SNS
 # ------------------------------------------------------------------------------
 module "sns_event_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
-  context    = module.sns_meta.context
+  context    = module.secret_update_sns_meta.context
   attributes = ["event"]
 }
 
-resource "aws_cloudwatch_event_rule" "this" {
+resource "aws_cloudwatch_event_rule" "secret_update" {
   count = module.sns_event_meta.enabled ? 1 : 0
 
   description = "Event on change of SSL secret value"
@@ -97,16 +97,16 @@ resource "aws_cloudwatch_event_rule" "this" {
       eventSource = ["secretsmanager.amazonaws.com"],
       eventName   = ["PutSecretValue", "UpdateSecret", "UpdateSecretVersionStage"]
       requestParameters = {
-        secretId = [one(aws_secretsmanager_secret.ssl_certificate[*].arn)]
+        secretId = [local.create_secret ? one(aws_secretsmanager_secret.this[*].arn) : var.import_secret_arn]
       }
     }
   })
 }
 
-resource "aws_cloudwatch_event_target" "ssl_event_target" {
+resource "aws_cloudwatch_event_target" "secret_update" {
   count = module.sns_event_meta.enabled ? 1 : 0
 
-  rule      = one(aws_cloudwatch_event_rule.this[*].name)
-  arn       = one(aws_sns_topic.this[*].arn)
+  rule      = one(aws_cloudwatch_event_rule.secret_update[*].name)
+  arn       = one(aws_sns_topic.secret_update[*].arn)
   target_id = null
 }

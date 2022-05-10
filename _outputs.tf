@@ -6,42 +6,33 @@ output "kms_key_alias" {
   value = one(aws_kms_alias.this[*].name)
 }
 
-output "acm_certificate_arn" {
-  value = join("", aws_acm_certificate.certificate[*].arn)
-}
-
-output "acm_certificate_cloudfront_region_arn" {
-  value = join("", aws_acm_certificate.certificate_cloudfront_region[*].arn)
-}
 
 output "secretsmanager_arn" {
-  value = join("", aws_secretsmanager_secret.ssl_certificate[*].arn)
+  value = one(aws_secretsmanager_secret.this[*].arn)
 }
 
 output "secretsmanager_id" {
-  value = join("", aws_secretsmanager_secret.ssl_certificate[*].id)
+  value = one(aws_secretsmanager_secret.this[*].id)
 }
 
-output "secretsmanager_certificate_chain_keyname" {
-  value = var.secretsmanager_certificate_chain_keyname
+
+output "acm_certificate_arn" {
+  value = one(aws_acm_certificate.default[*].arn)
 }
 
-output "secretsmanager_certificate_keyname" {
-  value = var.secretsmanager_certificate_keyname
+output "acm_certificate_cloudfront_region_arn" {
+  value = one(aws_acm_certificate.cloudfront[*].arn)
 }
 
-output "secretsmanager_certificate_private_key_keyname" {
-  value = var.secretsmanager_certificate_private_key_keyname
-}
 
-output "certificate_content" {
+output "certificate" {
   value = local.certificate
 }
 
-output "certificate_private_key_content" {
+output "private_key" {
   value = local.private_key
 }
 
-output "certificate_chain_content" {
+output "certificate_chain" {
   value = local.certificate_chain
 }

@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # ACM Store
 # ------------------------------------------------------------------------------
-resource "aws_acm_certificate" "certificate" {
+resource "aws_acm_certificate" "default" {
   count = module.this.enabled ? 1 : 0
 
   certificate_body  = local.certificate
@@ -23,7 +23,7 @@ locals {
   is_cloudfront_region = data.aws_region.current.name == "us-east-1"
 }
 
-resource "aws_acm_certificate" "certificate_cloudfront_region" {
+resource "aws_acm_certificate" "cloudfront" {
   count = (module.this.enabled && !local.is_cloudfront_region) ? 1 : 0
 
   provider = aws.cloudfront
