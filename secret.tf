@@ -82,11 +82,12 @@ locals {
 }
 
 data "aws_iam_policy_document" "secret_access_policy_doc" {
+  count = length(var.secret_allowed_accounts) > 0 ? 1 : 0
   dynamic "statement" {
     for_each = toset(var.secret_allowed_accounts)
     content {
-      effect    = "Allow"
-      actions   = [
+      effect = "Allow"
+      actions = [
         "secretsmanager:GetSecretValue",
         "secretsmanager:GetResourcePolicy",
         "secretsmanager:DescribeSecret"
@@ -107,7 +108,7 @@ resource "aws_secretsmanager_secret" "this" {
   description = "SSL Certificate Values"
   kms_key_id  = one(aws_kms_key.this[*].key_id)
   name_prefix = "${module.secret_meta.id}-"
-  policy      = data.aws_iam_policy_document.secret_access_policy_doc.json
+  policy      = join("", data.aws_iam_policy_document.secret_access_policy_doc[*].json)
   tags        = module.secret_meta.tags
 }
 
