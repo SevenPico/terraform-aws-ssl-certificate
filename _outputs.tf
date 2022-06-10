@@ -23,11 +23,6 @@ output "acm_certificate_arn" {
   value = one(aws_acm_certificate.default[*].arn)
 }
 
-output "acm_certificate_cloudfront_arn" {
-  value = one(aws_acm_certificate.cloudfront[*].arn)
-}
-
-
 output "certificate" {
   value = local.certificate
 }

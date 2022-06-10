@@ -77,7 +77,6 @@ locals {
     "${var.private_key_keyname}"       = local.private_key
 
     ACM_ARN    = one(aws_acm_certificate.default[*].arn)
-    ACM_CF_ARN = one(aws_acm_certificate.cloudfront[*].arn)
   }
 }
 
