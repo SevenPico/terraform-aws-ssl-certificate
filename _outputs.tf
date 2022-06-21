@@ -27,10 +27,22 @@ output "certificate" {
   value = local.certificate
 }
 
+output "certificate_keyname" {
+  value = var.certificate_keyname
+}
+
 output "private_key" {
   value = local.private_key
 }
 
+output "private_key_keyname" {
+  value = var.private_key_keyname
+}
+
 output "certificate_chain" {
   value = local.certificate_chain
+}
+
+output "certificate_chain_keyname" {
+  value = var.certificate_chain_keyname
 }
