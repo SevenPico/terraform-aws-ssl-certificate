@@ -1,16 +1,19 @@
-provider "aws" {
-  region = "us-east-1"
+# ------------------------------------------------------------------------------
+# SSL Certificate Meta
+# ------------------------------------------------------------------------------
+module "ssl_certificate_meta" {
+  source  = "registry.terraform.io/cloudposse/label/null"
+  version = "0.25.0"
+  context = module.this.context
 }
 
-data "aws_caller_identity" "current" {}
 
+# ------------------------------------------------------------------------------
+# SSL Certificate
+# ------------------------------------------------------------------------------
 module "ssl_certificate" {
   source = "../.."
-
-  enabled = true
-  attributes = ["example", "ssl"]
-
-  common_name = "example.com"
+  context = module.ssl_certificate_meta.context
 
   additional_secrets = {
     EXAMPLE = "example value"
