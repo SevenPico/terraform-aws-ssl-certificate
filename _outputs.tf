@@ -11,38 +11,37 @@ output "kms_key_alias_arn" {
 }
 
 output "secret_arn" {
-  value = one(aws_secretsmanager_secret.this[*].arn)
+  value = local.secret_arn
 }
-
-output "secret_id" {
-  value = one(aws_secretsmanager_secret.this[*].id)
-}
-
 
 output "acm_certificate_arn" {
-  value = one(aws_acm_certificate.default[*].arn)
+  value = local.create_acm_only ? module.acm_only.arn : one(aws_acm_certificate.imported[*].arn)
 }
 
-output "certificate" {
-  value = local.certificate
+output "acm_certificate_id" {
+  value = local.create_acm_only ? module.acm_only.id : one(aws_acm_certificate.imported[*].id)
 }
 
-output "certificate_keyname" {
-  value = var.certificate_keyname
+#output "certificate" {
+#  value = local.certificate
+#}
+
+output "keyname_certificate" {
+  value = var.keyname_certificate
 }
 
-output "private_key" {
-  value = local.private_key
+#output "private_key" {
+#  value = local.private_key
+#}
+
+output "keyname_private_key" {
+  value = var.keyname_private_key
 }
 
-output "private_key_keyname" {
-  value = var.private_key_keyname
-}
+#output "certificate_chain" {
+#  value = local.certificate_chain
+#}
 
-output "certificate_chain" {
-  value = local.certificate_chain
-}
-
-output "certificate_chain_keyname" {
-  value = var.certificate_chain_keyname
+output "keyname_certificate_chain" {
+  value = var.keyname_certificate_chain
 }

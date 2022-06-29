@@ -1,6 +1,6 @@
 enabled             = true
 namespace           = "sp"
-environment         = "complete"
+environment         = "ife"
 stage               = "ssl"
 #name                = ""
 #delimiter           = var.delimiter

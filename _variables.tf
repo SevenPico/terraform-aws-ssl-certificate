@@ -1,25 +1,57 @@
-variable "create_letsencrypt" {
-  description = "If this is set to true, Let's Encrypt certificate values will be created."
-  type        = bool
-  default     = false
+#variable "create_acm_only" {
+#  description = "If this is set to true, an AWS managed ACM will be created without any Secrets Manager document."
+#  type        = bool
+#  default     = false
+#}
+#
+#variable "create_letsencrypt" {
+#  description = "If this is set to true, Let's Encrypt certificate values will be created."
+#  type        = bool
+#  default     = false
+#  validation {
+#    condition = var.create_letsencrypt == false || (var.create_from_file
+#    error_message = "Invalid List of IP addresses provided."
+#  }
+#}
+#
+#variable "create_from_file" {
+#  description = "If this is set to true, certificate is imported from provided filepaths."
+#  type        = bool
+#  default     = false
+#}
+#
+#variable "create_from_secret" {
+#  description = "If this is set to true, certificate is imported from provided SecretsManager secret."
+#  type        = bool
+#  default     = false
+#}
+locals {
+  create_acm_only    = var.create_mode == "ACM_Only"
+  create_letsencrypt = var.create_mode == "LetsEncrypt"
+  create_from_file   = var.create_mode == "From_File"
+  create_from_secret = var.create_mode == "From_Secret"
 }
 
-variable "import_from_file" {
-  description = "If this is set to true, certificate is imported from provided filepaths."
-  type        = bool
-  default     = false
+variable "create_mode" {
+  type        = string
+  description = "Set the operational mode of this module."
+  default     = "LetsEncrypt"
+
+  validation {
+    condition     = contains(["ACM_Only", "LetsEncrypt", "From_Secret", "From_File"], var.create_mode)
+    error_message = "The 'mode' must be one of [ACM_Only, LetsEncrypt, From_Secret, From_File]"
+  }
 }
 
-variable "import_from_secret" {
-  description = "If this is set to true, certificate is imported from provided SecretsManager secret."
-  type        = bool
-  default     = false
+variable "create_secret_update_sns" {
+  type    = bool
+  default = false
 }
 
 variable "import_secret_arn" {
   description = "ARN of exisiting SecretsManager secret containing certificate, private key and chain"
-  type = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 variable "common_name" {
@@ -34,47 +66,42 @@ variable "additional_secrets" {
   default     = {}
 }
 
-variable "certificate_keyname" {
+variable "keyname_certificate" {
   type    = string
   default = "CERTIFICATE"
 }
 
-variable "private_key_keyname" {
+variable "keyname_private_key" {
   type    = string
   default = "CERTIFICATE_PRIVATE_KEY"
 }
 
-variable "certificate_chain_keyname" {
+variable "keyname_certificate_chain" {
   type    = string
   default = "CERTIFICATE_CHAIN"
 }
 
-variable "import_certificate_filepath" {
+variable "import_filepath_certificate" {
   default = ""
 }
 
-variable "import_certificate_chain_filepath" {
+variable "import_filepath_certificate_chain" {
   default = ""
 }
 
-variable "import_private_key_filepath" {
+variable "import_filepath_private_key" {
   default = ""
 }
 
 variable "secret_allowed_accounts" {
-  type = list(number)
+  type    = list(number)
   default = []
 }
 
 variable "ignore_secret_changes" {
   description = "Add ignore_change on SecretsManager secret values to allow later replacement of the secret"
-  type = bool
-  default = false
-}
-
-variable "create_secret_update_sns" {
-  type    = bool
-  default = false
+  type        = bool
+  default     = false
 }
 
 variable "secret_update_sns_pub_principals" {
@@ -87,3 +114,8 @@ variable "secret_update_sns_sub_principals" {
   default = {}
 }
 
+variable "zone_id" {
+  description = "When using ACM_Only, the Route53 Zone ID is required."
+  type        = string
+  default     = null
+}

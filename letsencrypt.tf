@@ -5,7 +5,7 @@ module "letsencrypt_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
   context    = module.this.context
-  enabled    = module.this.enabled && var.create_letsencrypt
+  enabled    = module.this.enabled && local.create_letsencrypt
   attributes = ["letsencrypt"]
 }
 

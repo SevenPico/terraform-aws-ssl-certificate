@@ -5,7 +5,7 @@ module "secret_update_sns_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
   context    = module.this.context
-  enabled    = module.this.enabled && var.create_secret_update_sns
+  enabled    = module.this.enabled && var.create_secret_update_sns && ! local.create_acm_only
   attributes = ["sns"]
 }
 

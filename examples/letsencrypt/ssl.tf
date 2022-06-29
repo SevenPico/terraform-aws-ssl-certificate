@@ -12,23 +12,23 @@ module "ssl_certificate_meta" {
 # SSL Certificate
 # ------------------------------------------------------------------------------
 module "ssl_certificate" {
-  source = "../.."
+  source  = "../.."
   context = module.ssl_certificate_meta.context
 
-  additional_secrets = {
-    EXAMPLE = "example value"
-  }
-
-  create_letsencrypt                = true
+  additional_secrets                = { EXAMPLE = "example value" }
+  create_mode                       = "LetsEncrypt"
   create_secret_update_sns          = true
-  ignore_secret_changes             = true
-  import_from_file                  = false
-  import_from_secret                = false
-  import_private_key_filepath       = null
-  import_certificate_chain_filepath = null
-  import_certificate_filepath       = null
+  common_name                       = var.common_name
+  ignore_secret_changes             = false
+  import_filepath_certificate       = null
+  import_filepath_certificate_chain = null
+  import_filepath_private_key       = null
   import_secret_arn                 = null
-  secret_allowed_accounts           = [ data.aws_caller_identity.current.account_id ]
+  keyname_certificate               = "CERTIFICATE"
+  keyname_certificate_chain         = "CERTIFICATE_CHAIN"
+  keyname_private_key               = "CERTIFICATE_PRIVATE_KEY"
+  secret_allowed_accounts           = [data.aws_caller_identity.current.account_id]
   secret_update_sns_pub_principals  = { AWS = [data.aws_caller_identity.current.account_id] }
   secret_update_sns_sub_principals  = { AWS = [data.aws_caller_identity.current.account_id] }
+  zone_id                           = null
 }

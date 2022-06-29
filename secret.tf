@@ -1,4 +1,26 @@
-# ------------------------------------------------------------------------------
+locals {
+  create_secret = local.create_letsencrypt || local.create_from_file
+
+  letsencrypt_certificate       = one(acme_certificate.this[*].certificate_pem)
+  letsencrypt_private_key       = one(tls_private_key.certificate_key[*].private_key_pem)
+  letsencrypt_certificate_chain = join("", flatten([
+    acme_certificate.this[*].certificate_pem,
+    acme_certificate.this[*].issuer_pem
+  ]))
+
+  imported_file_certificate       = local.create_from_file ? file(var.import_filepath_certificate) : ""
+  imported_file_private_key       = local.create_from_file ? file(var.import_filepath_private_key) : ""
+  imported_file_certificate_chain = local.create_from_file ? file(var.import_filepath_certificate_chain) : ""
+
+  certificate_to_save = local.create_from_file ? local.imported_file_certificate : (
+                        local.create_letsencrypt ? local.letsencrypt_certificate : "")
+  certificate_chain_to_save = local.create_from_file ? local.imported_file_certificate_chain : (
+                              local.create_letsencrypt ? local.letsencrypt_certificate_chain : "")
+  private_key_to_save = local.create_from_file ? local.imported_file_private_key : (
+                        local.create_letsencrypt ? local.letsencrypt_private_key : "")
+}
+
+  # ------------------------------------------------------------------------------
 # SSL Certificate SecretsManager Secret
 # --------------------------------------------------------------------------
 module "secret_meta" {
@@ -72,11 +94,11 @@ resource "aws_kms_alias" "this" {
 # ------------------------------------------------------------------------------
 locals {
   secrets = {
-    "${var.certificate_keyname}"       = local.certificate
-    "${var.certificate_chain_keyname}" = local.certificate_chain
-    "${var.private_key_keyname}"       = local.private_key
+    "${var.keyname_certificate}"       = local.certificate_to_save
+    "${var.keyname_certificate_chain}" = local.certificate_chain_to_save
+    "${var.keyname_private_key}"       = local.private_key_to_save
 
-    ACM_ARN    = one(aws_acm_certificate.default[*].arn)
+  //  ACM_ARN    = local.create_acm_only ? module.acm_only.arn : one(aws_acm_certificate.imported[*].arn)
   }
 }
 
@@ -128,3 +150,4 @@ resource "aws_secretsmanager_secret_version" "ignore_changes" {
     ignore_changes = [secret_string, secret_binary]
   }
 }
+
