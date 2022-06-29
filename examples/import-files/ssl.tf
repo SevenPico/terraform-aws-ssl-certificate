@@ -26,7 +26,6 @@ module "ssl_certificate_source" {
   create_mode                       = "LetsEncrypt"
   create_secret_update_sns          = true
   common_name                       = var.common_name
-  ignore_secret_changes             = false
   import_filepath_certificate       = null
   import_filepath_certificate_chain = null
   import_filepath_private_key       = null
@@ -86,7 +85,6 @@ module "ssl_certificate" {
   create_mode                       = "From_File"
   create_secret_update_sns          = true
   common_name                       = var.common_name
-  ignore_secret_changes             = true
   import_filepath_certificate       = "${path.module}/cert.pem"
   import_filepath_certificate_chain = "${path.module}/chain.pem"
   import_filepath_private_key       = "${path.module}/key.pem"

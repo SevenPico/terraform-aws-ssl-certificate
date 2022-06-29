@@ -19,7 +19,6 @@ module "ssl_certificate" {
   create_mode                       = "LetsEncrypt"
   create_secret_update_sns          = true
   common_name                       = var.common_name
-  ignore_secret_changes             = false
   import_filepath_certificate       = null
   import_filepath_certificate_chain = null
   import_filepath_private_key       = null

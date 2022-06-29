@@ -134,14 +134,14 @@ resource "aws_secretsmanager_secret" "this" {
 }
 
 resource "aws_secretsmanager_secret_version" "default" {
-  count = (module.secret_meta.enabled && !var.ignore_secret_changes) ? 1 : 0
+  count = (module.secret_meta.enabled && !local.ignore_secret_changes) ? 1 : 0
 
   secret_id     = one(aws_secretsmanager_secret.this[*].id)
   secret_string = jsonencode(merge(local.secrets, var.additional_secrets))
 }
 
 resource "aws_secretsmanager_secret_version" "ignore_changes" {
-  count = (module.secret_meta.enabled && var.ignore_secret_changes) ? 1 : 0
+  count = (module.secret_meta.enabled && local.ignore_secret_changes) ? 1 : 0
 
   secret_id     = one(aws_secretsmanager_secret.this[*].id)
   secret_string = jsonencode(merge(local.secrets, var.additional_secrets))

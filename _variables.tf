@@ -30,6 +30,8 @@ locals {
   create_letsencrypt = var.create_mode == "LetsEncrypt"
   create_from_file   = var.create_mode == "From_File"
   create_from_secret = var.create_mode == "From_Secret"
+
+  ignore_secret_changes = local.create_from_file
 }
 
 variable "create_mode" {
@@ -96,12 +98,6 @@ variable "import_filepath_private_key" {
 variable "secret_allowed_accounts" {
   type    = list(number)
   default = []
-}
-
-variable "ignore_secret_changes" {
-  description = "Add ignore_change on SecretsManager secret values to allow later replacement of the secret"
-  type        = bool
-  default     = false
 }
 
 variable "secret_update_sns_pub_principals" {
