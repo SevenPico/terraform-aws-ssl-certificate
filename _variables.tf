@@ -41,7 +41,7 @@ variable "create_mode" {
 
   validation {
     condition     = contains(["ACM_Only", "LetsEncrypt", "From_Secret", "From_File"], var.create_mode)
-    error_message = "The 'mode' must be one of [ACM_Only, LetsEncrypt, From_Secret, From_File]"
+    error_message = "The 'mode' must be one of [ACM_Only, LetsEncrypt, From_Secret, From_File]."
   }
 }
 
