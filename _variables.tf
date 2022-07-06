@@ -26,10 +26,10 @@
 #  default     = false
 #}
 locals {
-  create_acm_only    = var.create_mode == "ACM_Only"
-  create_letsencrypt = var.create_mode == "LetsEncrypt"
-  create_from_file   = var.create_mode == "From_File"
-  create_from_secret = var.create_mode == "From_Secret"
+  create_acm_only    = var.create_mode == "ACM_Only" && module.this.enabled
+  create_letsencrypt = var.create_mode == "LetsEncrypt" && module.this.enabled
+  create_from_file   = var.create_mode == "From_File" && module.this.enabled
+  create_from_secret = var.create_mode == "From_Secret" && module.this.enabled
 
   ignore_secret_changes = local.create_from_file
 }

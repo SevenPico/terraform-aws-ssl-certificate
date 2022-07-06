@@ -7,7 +7,7 @@ locals {
 
 
 data "aws_secretsmanager_secret_version" "this" {
-  count = !local.create_acm_only ? 1 : 0
+  count = module.this.enabled && !local.create_acm_only ? 1 : 0
   depends_on = [aws_secretsmanager_secret_version.ignore_changes, aws_secretsmanager_secret_version.default]
 
   secret_id     = local.secret_arn
