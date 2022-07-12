@@ -115,3 +115,9 @@ variable "zone_id" {
   type        = string
   default     = null
 }
+
+variable "route53_user_enabled" {
+  description = "Create user with permissions to complete route53 DNS challenge. Needed to workaround switch-role issue in lego provider."
+  type    = bool
+  default = false
+}
