@@ -56,10 +56,16 @@ variable "import_secret_arn" {
   default     = ""
 }
 
-variable "common_name" {
+variable "dns_name" {
   description = "The domain name that the certificate will be created for. Currently this value will be wild-carded."
   type        = string
   default     = ""
+}
+
+variable "additional_dns_names" {
+  description = "Additional domain names that the certificate will be created for."
+  type        = list(string)
+  default     = []
 }
 
 variable "additional_secrets" {

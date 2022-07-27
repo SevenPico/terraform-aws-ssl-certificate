@@ -19,7 +19,7 @@ resource "acme_registration" "this" {
   count = module.letsencrypt_meta.enabled ? 1 : 0
 
   account_key_pem = tls_private_key.account_key[0].private_key_pem
-  email_address   = "nobody@${var.common_name}"
+  email_address   = "nobody@${var.dns_name}"
 }
 
 resource "tls_private_key" "certificate_key" {
@@ -32,10 +32,10 @@ resource "tls_cert_request" "this" {
   count = module.letsencrypt_meta.enabled ? 1 : 0
 
   private_key_pem = tls_private_key.certificate_key[0].private_key_pem
-  dns_names       = [var.common_name, "*.${var.common_name}"]
+  dns_names       = distinct(concat([var.dns_name, "*.${var.dns_name}"], var.additional_dns_names))
 
   subject {
-    common_name = "*.${var.common_name}"
+    common_name = "*.${var.dns_name}"
   }
 }
 
