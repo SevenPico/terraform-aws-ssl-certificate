@@ -8,9 +8,9 @@ locals {
     acme_certificate.this[*].issuer_pem
   ]))
 
-  imported_file_certificate       = local.create_from_file ? file(var.import_filepath_certificate) : ""
-  imported_file_private_key       = local.create_from_file ? file(var.import_filepath_private_key) : ""
-  imported_file_certificate_chain = local.create_from_file ? file(var.import_filepath_certificate_chain) : ""
+  imported_file_certificate       = local.create_from_file && var.import_filepath_certificate != "" ? file(var.import_filepath_certificate) : ""
+  imported_file_private_key       = local.create_from_file && var.import_filepath_private_key != "" ? file(var.import_filepath_private_key) : ""
+  imported_file_certificate_chain = local.create_from_file && var.import_filepath_certificate_chain != "" ? file(var.import_filepath_certificate_chain) : ""
 
   certificate_to_save = local.create_from_file ? local.imported_file_certificate : (
                         local.create_letsencrypt ? local.letsencrypt_certificate : "")
