@@ -56,10 +56,16 @@ variable "import_secret_arn" {
   default     = ""
 }
 
-variable "common_name" {
+variable "dns_name" {
   description = "The domain name that the certificate will be created for. Currently this value will be wild-carded."
   type        = string
   default     = ""
+}
+
+variable "additional_dns_names" {
+  description = "Additional domain names that the certificate will be created for."
+  type        = list(string)
+  default     = []
 }
 
 variable "additional_secrets" {
@@ -114,4 +120,10 @@ variable "zone_id" {
   description = "When using ACM_Only, the Route53 Zone ID is required."
   type        = string
   default     = null
+}
+
+variable "route53_user_enabled" {
+  description = "Create user with permissions to complete route53 DNS challenge. Needed to workaround switch-role issue in lego provider."
+  type    = bool
+  default = false
 }

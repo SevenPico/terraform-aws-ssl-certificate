@@ -42,7 +42,7 @@ module "acm_only" {
   context = module.this.context
   enabled = module.this.enabled && local.create_acm_only
 
-  domain_name                                 = var.common_name
+  domain_name                                 = var.dns_name
   process_domain_validation_options           = true
   ttl                                         = "300"
   certificate_authority_arn                   = null
