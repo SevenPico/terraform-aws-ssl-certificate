@@ -1,30 +1,3 @@
-#variable "create_acm_only" {
-#  description = "If this is set to true, an AWS managed ACM will be created without any Secrets Manager document."
-#  type        = bool
-#  default     = false
-#}
-#
-#variable "create_letsencrypt" {
-#  description = "If this is set to true, Let's Encrypt certificate values will be created."
-#  type        = bool
-#  default     = false
-#  validation {
-#    condition = var.create_letsencrypt == false || (var.create_from_file
-#    error_message = "Invalid List of IP addresses provided."
-#  }
-#}
-#
-#variable "create_from_file" {
-#  description = "If this is set to true, certificate is imported from provided filepaths."
-#  type        = bool
-#  default     = false
-#}
-#
-#variable "create_from_secret" {
-#  description = "If this is set to true, certificate is imported from provided SecretsManager secret."
-#  type        = bool
-#  default     = false
-#}
 locals {
   create_acm_only    = var.create_mode == "ACM_Only" && module.this.enabled
   create_letsencrypt = var.create_mode == "LetsEncrypt" && module.this.enabled
@@ -101,9 +74,9 @@ variable "import_filepath_private_key" {
   default = ""
 }
 
-variable "secret_allowed_accounts" {
-  type    = list(number)
-  default = []
+variable "secret_read_principals" {
+  type    = map(any)
+  default = {}
 }
 
 variable "secret_update_sns_pub_principals" {
@@ -120,10 +93,4 @@ variable "zone_id" {
   description = "When using ACM_Only, the Route53 Zone ID is required."
   type        = string
   default     = null
-}
-
-variable "route53_user_enabled" {
-  description = "Create user with permissions to complete route53 DNS challenge. Needed to workaround switch-role issue in lego provider."
-  type    = bool
-  default = false
 }

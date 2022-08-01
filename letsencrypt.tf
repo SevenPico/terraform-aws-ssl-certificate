@@ -47,54 +47,5 @@ resource "acme_certificate" "this" {
 
   dns_challenge {
     provider = "route53"
-
-    config = var.route53_user_enabled ? {
-      AWS_ACCESS_KEY_ID = "${one(aws_iam_access_key.route53[*].id)}"
-      AWS_SECRET_ACCESS_KEY = "${one(aws_iam_access_key.route53[*].secret)}"
-    } : {}
-
   }
-}
-
-// Create the Route53 Terraform IAM User, allowing Terraform to add the DNS record for an ACME cert issuance.
-// Needed due to https://github.com/vancluever/terraform-provider-acme/issues/203 .
-resource "aws_iam_user" "route53" {
-  count = var.route53_user_enabled ? 1 : 0
-  name = "route53_ssl"
-}
-
-resource "aws_iam_access_key" "route53" {
-  count = var.route53_user_enabled ? 1 : 0
-  user = one(aws_iam_user.route53[*].name)
-}
-
-resource "aws_iam_user_policy" "route53" {
-  count = var.route53_user_enabled ? 1 : 0
-  name = "terraform_route_53_user_policy"
-  user = one(aws_iam_user.route53[*].name)
-
-  policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Sid": "",
-        "Effect": "Allow",
-        "Action": [
-          "route53:GetChange",
-          "route53:ChangeResourceRecordSets",
-          "route53:ListResourceRecordSets"
-        ],
-        "Resource": [
-          "arn:aws:route53:::hostedzone/*",
-          "arn:aws:route53:::change/*"
-        ]
-      },
-      {
-        "Sid": "",
-        "Effect": "Allow",
-        "Action": "route53:ListHostedZonesByName",
-        "Resource": "*"
-      }
-    ]
-  })
 }
