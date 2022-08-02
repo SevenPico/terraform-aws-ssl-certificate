@@ -10,6 +10,10 @@ output "kms_key_alias_arn" {
   value = module.ssl_secret.kms_key_alias_arn
 }
 
+output "sns_topic_arn" {
+  value = module.ssl_secret.sns_topic_arn
+}
+
 output "secret_arn" {
   value = local.secret_arn
 }
