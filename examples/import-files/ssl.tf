@@ -1,16 +1,16 @@
 # ------------------------------------------------------------------------------
-# SSL Certificate Meta
+# SSL Certificate Context
 # ------------------------------------------------------------------------------
-module "ssl_certificate_source_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.this.context
+module "ssl_certificate_source_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.1"
+  context = module.context.self
 }
 
-module "ssl_certificate_import_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.ssl_certificate_source_meta.context
+module "ssl_certificate_import_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.1"
+  context    = module.ssl_certificate_source_context.self
   attributes = ["import"]
 }
 
@@ -20,12 +20,11 @@ module "ssl_certificate_import_meta" {
 # ------------------------------------------------------------------------------
 module "ssl_certificate_source" {
   source  = "../.."
-  context = module.ssl_certificate_source_meta.context
+  context = module.ssl_certificate_source_context.context
 
   additional_secrets                = { EXAMPLE = "example value" }
   create_mode                       = "LetsEncrypt"
   create_secret_update_sns          = true
-  common_name                       = var.common_name
   import_filepath_certificate       = null
   import_filepath_certificate_chain = null
   import_filepath_private_key       = null
@@ -33,7 +32,8 @@ module "ssl_certificate_source" {
   keyname_certificate               = "CERTIFICATE"
   keyname_certificate_chain         = "CERTIFICATE_CHAIN"
   keyname_private_key               = "CERTIFICATE_PRIVATE_KEY"
-  secret_allowed_accounts           = [data.aws_caller_identity.current.account_id]
+  kms_key_deletion_window_in_days   = 7
+  kms_key_enable_key_rotation       = false
   secret_update_sns_pub_principals  = { AWS = [data.aws_caller_identity.current.account_id] }
   secret_update_sns_sub_principals  = { AWS = [data.aws_caller_identity.current.account_id] }
   zone_id                           = null
@@ -41,13 +41,13 @@ module "ssl_certificate_source" {
 }
 
 data "aws_secretsmanager_secret" "source" {
-  count = module.this.enabled ? 1 : 0
+  count = module.context.enabled ? 1 : 0
   depends_on = [module.ssl_certificate_source]
 
   arn = module.ssl_certificate_source.secret_arn
 }
 data "aws_secretsmanager_secret_version" "source" {
-  count = module.this.enabled ? 1 : 0
+  count = module.context.enabled ? 1 : 0
   depends_on = [module.ssl_certificate_source]
 
   secret_id = data.aws_secretsmanager_secret.source[0].id
@@ -55,19 +55,19 @@ data "aws_secretsmanager_secret_version" "source" {
 }
 
 resource "local_file" "key" {
-  count = module.this.enabled ? 1 : 0
+  count = module.context.enabled ? 1 : 0
   filename = "${path.module}/key.pem"
   content  = jsondecode(data.aws_secretsmanager_secret_version.source[0].secret_string)[module.ssl_certificate_source.keyname_private_key]
 }
 
 resource "local_file" "certificate" {
-  count = module.this.enabled ? 1 : 0
+  count = module.context.enabled ? 1 : 0
   filename = "${path.module}/cert.pem"
   content  = jsondecode(data.aws_secretsmanager_secret_version.source[0].secret_string)[module.ssl_certificate_source.keyname_certificate]
 }
 
 resource "local_file" "certificate_chain" {
-  count = module.this.enabled ? 1 : 0
+  count = module.context.enabled ? 1 : 0
   filename = "${path.module}/chain.pem"
   content  = jsondecode(data.aws_secretsmanager_secret_version.source[0].secret_string)[module.ssl_certificate_source.keyname_certificate_chain]
 }
@@ -78,13 +78,13 @@ resource "local_file" "certificate_chain" {
 # ------------------------------------------------------------------------------
 module "ssl_certificate" {
   source  = "../.."
-  context = module.ssl_certificate_import_meta.context
+  context = module.ssl_certificate_import_context.self
   depends_on = [module.ssl_certificate_source ,local_file.certificate, local_file.certificate_chain, local_file.key]
 
+  additional_dns_names              = []
   additional_secrets                = { EXAMPLE = "example value" }
   create_mode                       = "From_File"
   create_secret_update_sns          = true
-  common_name                       = var.common_name
   import_filepath_certificate       = "${path.module}/cert.pem"
   import_filepath_certificate_chain = "${path.module}/chain.pem"
   import_filepath_private_key       = "${path.module}/key.pem"
@@ -92,7 +92,7 @@ module "ssl_certificate" {
   keyname_certificate               = "CERTIFICATE"
   keyname_certificate_chain         = "CERTIFICATE_CHAIN"
   keyname_private_key               = "CERTIFICATE_PRIVATE_KEY"
-  secret_allowed_accounts           = [data.aws_caller_identity.current.account_id]
+  secret_read_principals            = {}
   secret_update_sns_pub_principals  = { AWS = [data.aws_caller_identity.current.account_id] }
   secret_update_sns_sub_principals  = { AWS = [data.aws_caller_identity.current.account_id] }
   zone_id                           = null

@@ -1,8 +1,8 @@
 locals {
-  create_acm_only    = var.create_mode == "ACM_Only" && module.this.enabled
-  create_letsencrypt = var.create_mode == "LetsEncrypt" && module.this.enabled
-  create_from_file   = var.create_mode == "From_File" && module.this.enabled
-  create_from_secret = var.create_mode == "From_Secret" && module.this.enabled
+  create_acm_only    = var.create_mode == "ACM_Only" && module.context.enabled
+  create_letsencrypt = var.create_mode == "LetsEncrypt" && module.context.enabled
+  create_from_file   = var.create_mode == "From_File" && module.context.enabled
+  create_from_secret = var.create_mode == "From_Secret" && module.context.enabled
 
   ignore_secret_changes = local.create_from_file
 }
@@ -25,12 +25,6 @@ variable "create_secret_update_sns" {
 
 variable "import_secret_arn" {
   description = "ARN of exisiting SecretsManager secret containing certificate, private key and chain"
-  type        = string
-  default     = ""
-}
-
-variable "dns_name" {
-  description = "The domain name that the certificate will be created for. Currently this value will be wild-carded."
   type        = string
   default     = ""
 }
@@ -93,4 +87,16 @@ variable "zone_id" {
   description = "When using ACM_Only, the Route53 Zone ID is required."
   type        = string
   default     = null
+}
+
+variable "kms_key_deletion_window_in_days" {
+  description = "Deletion window for KMS Keys created in this module."
+  type        = number
+  default     = 30
+}
+
+variable "kms_key_enable_key_rotation" {
+  description = "Turn on KMS Key rotation for KMS Keys created in this module."
+  type        = bool
+  default     = true
 }
