@@ -42,12 +42,12 @@ module "acm_only" {
   context = module.context.context
   enabled = module.context.enabled && local.create_acm_only
 
-  domain_name                                 = module.context.domain_name
+  domain_name                                 = var.create_wildcard ? "*.${module.context.domain_name}" : module.context.domain_name
   process_domain_validation_options           = true
   ttl                                         = "300"
   certificate_authority_arn                   = null
   certificate_transparency_logging_preference = true
-  subject_alternative_names                   = []
+  subject_alternative_names                   = var.create_wildcard ? [] : var.additional_dns_names
   wait_for_certificate_issued                 = false
   validation_method                           = "DNS"
   zone_id                                     = var.zone_id

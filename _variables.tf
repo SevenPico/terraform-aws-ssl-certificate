@@ -100,3 +100,13 @@ variable "kms_key_enable_key_rotation" {
   type        = bool
   default     = true
 }
+
+variable "create_wildcard" {
+   type        = bool
+   default     = true
+ }
+
+variable "registration_email_address" {
+  type = string
+  default = ""
+}
