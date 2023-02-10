@@ -32,8 +32,8 @@ locals {
 # --------------------------------------------------------------------------
 module "ssl_secret" {
   source  = "app.terraform.io/SevenPico/secret/aws"
-  version = "1.0.8"
-  context = module.context.context
+  version = "3.0.1"
+  context = module.context.self
   enabled = module.context.enabled && local.create_secret
 
   create_sns                      = var.create_secret_update_sns && !local.create_acm_only

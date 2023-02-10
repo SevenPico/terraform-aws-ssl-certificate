@@ -2,9 +2,9 @@
 # Let's Encrypt Certificate
 # ------------------------------------------------------------------------------
 module "letsencrypt_context" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.context.context
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.1.0"
+  context    = module.context.self
   enabled    = module.context.enabled && local.create_letsencrypt
   attributes = ["letsencrypt"]
 }

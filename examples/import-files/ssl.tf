@@ -3,13 +3,13 @@
 # ------------------------------------------------------------------------------
 module "ssl_certificate_source_context" {
   source  = "app.terraform.io/SevenPico/context/null"
-  version = "1.0.1"
+  version = "1.1.0"
   context = module.context.self
 }
 
 module "ssl_certificate_import_context" {
   source  = "app.terraform.io/SevenPico/context/null"
-  version = "1.0.1"
+  version = "1.1.0"
   context    = module.ssl_certificate_source_context.self
   attributes = ["import"]
 }
@@ -20,7 +20,7 @@ module "ssl_certificate_import_context" {
 # ------------------------------------------------------------------------------
 module "ssl_certificate_source" {
   source  = "../.."
-  context = module.ssl_certificate_source_context.context
+  context = module.ssl_certificate_source_context.self
 
   additional_secrets                = { EXAMPLE = "example value" }
   create_mode                       = "LetsEncrypt"

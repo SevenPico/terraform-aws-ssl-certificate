@@ -37,9 +37,9 @@ resource "aws_acm_certificate" "imported" {
 # ACM (AWS Managed)
 # ------------------------------------------------------------------------------
 module "acm_only" {
-  source  = "registry.terraform.io/cloudposse/acm-request-certificate/aws"
-  version = "0.16.0"
-  context = module.context.context
+  source  = "app.terraform.io/SevenPico/acm-request-certificate/aws"
+  version = "1.0.0"
+  context = module.context.self
   enabled = module.context.enabled && local.create_acm_only
 
   domain_name                                 = var.create_wildcard ? "*.${module.context.domain_name}" : module.context.domain_name

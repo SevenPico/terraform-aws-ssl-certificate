@@ -3,13 +3,13 @@
 # ------------------------------------------------------------------------------
 module "ssl_certificate_source_context" {
   source  = "app.terraform.io/SevenPico/context/null"
-  version = "1.0.1"
+  version = "1.1.0"
   context = module.context.self
 }
 
 module "ssl_certificate_import_context" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.1.0"
   context    = module.ssl_certificate_source_context.self
   attributes = ["import"]
 }
