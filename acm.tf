@@ -37,8 +37,8 @@ resource "aws_acm_certificate" "imported" {
 # ACM (AWS Managed)
 # ------------------------------------------------------------------------------
 module "acm_only" {
-  source  = "app.terraform.io/SevenPico/acm-request-certificate/aws"
-  version = "1.0.0"
+  source  = "SevenPicoForks/acm-request-certificate/aws"
+  version = "2.0.0"
   context = module.context.self
   enabled = module.context.enabled && local.create_acm_only
 

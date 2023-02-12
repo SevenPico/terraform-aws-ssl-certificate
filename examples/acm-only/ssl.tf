@@ -2,8 +2,8 @@
 # SSL Certificate Context
 # ------------------------------------------------------------------------------
 module "ssl_certificate_source_context" {
-  source  = "app.terraform.io/SevenPico/context/null"
-  version = "1.1.0"
+  source  = "SevenPico/context/null"
+  version = "2.0.0"
   context = module.context.self
 }
 
