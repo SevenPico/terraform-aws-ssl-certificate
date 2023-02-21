@@ -49,6 +49,7 @@ module "ssl_certificate" {
   keyname_private_key               = "CERTIFICATE_PRIVATE_KEY"
   kms_key_deletion_window_in_days   = 7
   kms_key_enable_key_rotation       = false
+  registration_email_address        = ""
   secret_read_principals            = {}
   secret_update_sns_pub_principals  = { AWS = [data.aws_caller_identity.current.account_id] }
   secret_update_sns_sub_principals  = { AWS = [data.aws_caller_identity.current.account_id] }
