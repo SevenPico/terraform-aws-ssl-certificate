@@ -38,7 +38,7 @@ resource "aws_acm_certificate" "imported" {
 # ------------------------------------------------------------------------------
 module "acm_only" {
   source  = "registry.terraform.io/cloudposse/acm-request-certificate/aws"
-  version = "0.16.0"
+  version = "0.17.0"
   context = module.context.context
   enabled = module.context.enabled && local.create_acm_only
 
