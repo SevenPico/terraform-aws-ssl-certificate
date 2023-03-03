@@ -74,23 +74,109 @@ variable "import_filepath_private_key" {
   default = ""
 }
 
-variable "secret_read_principals" {
-  type    = map(any)
-  default = {}
-}
-
-variable "secret_update_sns_pub_principals" {
-  type    = map(any)
-  default = {}
-}
-
-variable "secret_update_sns_sub_principals" {
-  type    = map(any)
-  default = {}
-}
-
 variable "zone_id" {
   description = "When using ACM_Only, the Route53 Zone ID is required."
   type        = string
   default     = null
 }
+
+variable "secret_read_principals" {
+  type = map(object({
+    type        = string
+    identifiers = list(string)
+    condition   = any
+  }))
+  default = {}
+  description = <<EOF
+The following example input Allows for the specification of Principals as well as Principals with Conditions.
+If no Conditions are needed, the Condition block can be set to null, but that needs to be consistent for each map item
+{
+    RootAccess = {
+      type = "AWS"
+      identifiers = [var.principal_account_id]
+      condition = {
+        test     = null
+        values   = []
+        variable =
+      }
+    },
+    PubConditional = {
+      type = "AWS"
+      identifiers = ["*"]
+      condition = {
+        test     = "ForAnyValue:StringLike"
+        values   = [var.organization_ou_id]
+        variable = "aws:PrincipalOrgPaths"
+      }
+    }
+}
+EOF
+}
+
+variable "secret_update_sns_pub_principals" {
+  type = map(object({
+    type        = string
+    identifiers = list(string)
+    condition   = any
+  }))
+  default     = {}
+  description = <<EOF
+The following example input Allows for the specification of Principals as well as Principals with Conditions.
+If no Conditions are needed, the Condition block can be set to null, but that needs to be consistent for each map item
+{
+    RootAccess = {
+      type = "AWS"
+      identifiers = [var.principal_account_id]
+      condition = {
+        test     = null
+        values   = []
+        variable =
+      }
+    },
+    PubConditional = {
+      type = "AWS"
+      identifiers = ["*"]
+      condition = {
+        test     = "ForAnyValue:StringLike"
+        values   = [var.organization_ou_id]
+        variable = "aws:PrincipalOrgPaths"
+      }
+    }
+}
+EOF
+}
+
+variable "secret_update_sns_sub_principals" {
+  type = map(object({
+    type        = string
+    identifiers = list(string)
+    condition   = any
+  }))
+  default     = {}
+  description = <<EOF
+The following example input Allows for the specification of Principals as well as Principals with Conditions.
+If no Conditions are needed, the Condition block can be set to null, but that needs to be consistent for each map item
+{
+    RootAccess = {
+      type = "AWS"
+      identifiers = [var.principal_account_id]
+      condition = {
+        test     = null
+        values   = []
+        variable =
+      }
+    },
+    PubConditional = {
+      type = "AWS"
+      identifiers = ["*"]
+      condition = {
+        test     = "ForAnyValue:StringLike"
+        values   = [var.organization_ou_id]
+        variable = "aws:PrincipalOrgPaths"
+      }
+    }
+}
+EOF
+}
+
+
