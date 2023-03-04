@@ -51,6 +51,12 @@ resource "aws_acm_certificate" "imported" {
   lifecycle {
     create_before_destroy = true
   }
+
+  #  certificate_authority_arn = ""
+  #  early_renewal_duration = ""
+  options {
+    certificate_transparency_logging_preference = "DISABLED"
+  }
 }
 
 
