@@ -21,14 +21,14 @@
 
 locals {
   secret_arn = local.create_secret ? module.ssl_secret.arn : (
-               local.create_from_secret ? var.import_secret_arn : "")
+  local.create_from_secret ? var.import_secret_arn : "")
 
   secrets_manager_document = local.secret_arn != "" ? jsondecode(one(data.aws_secretsmanager_secret_version.this[*].secret_string)) : {}
 }
 
 
 data "aws_secretsmanager_secret_version" "this" {
-  count = module.context.enabled && !local.create_acm_only ? 1 : 0
+  count      = module.context.enabled && !local.create_acm_only ? 1 : 0
   depends_on = [module.ssl_secret]
 
   secret_id     = local.secret_arn
@@ -40,7 +40,7 @@ data "aws_secretsmanager_secret_version" "this" {
 # ACM (Lets Encrypt, Imported from file or secret)
 # ------------------------------------------------------------------------------
 resource "aws_acm_certificate" "imported" {
-  count = module.context.enabled && !local.create_acm_only ? 1 : 0
+  count      = module.context.enabled && !local.create_acm_only ? 1 : 0
   depends_on = [module.ssl_secret]
 
   certificate_body  = lookup(local.secrets_manager_document, var.keyname_certificate, "")
@@ -52,10 +52,10 @@ resource "aws_acm_certificate" "imported" {
     create_before_destroy = true
   }
 
-  #  certificate_authority_arn = ""
-  #  early_renewal_duration = ""
+  certificate_authority_arn = null
+  early_renewal_duration    = null
   options {
-    certificate_transparency_logging_preference = "DISABLED"
+    certificate_transparency_logging_preference = null
   }
 }
 
