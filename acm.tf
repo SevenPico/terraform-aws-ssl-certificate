@@ -26,13 +26,7 @@ resource "aws_acm_certificate" "imported" {
   certificate_chain = lookup(local.secrets_manager_document, var.keyname_certificate_chain, "")
   private_key       = lookup(local.secrets_manager_document, var.keyname_private_key, "")
   tags              = module.this.tags
-
-#  certificate_authority_arn = ""
-#  early_renewal_duration = ""
-  options {
-    certificate_transparency_logging_preference = "DISABLED"
-  }
-
+  
   lifecycle {
     create_before_destroy = true
   }
