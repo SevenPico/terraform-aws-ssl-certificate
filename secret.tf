@@ -52,8 +52,8 @@ locals {
 # SSL Certificate SecretsManager Secret
 # --------------------------------------------------------------------------
 module "ssl_secret" {
-  source  = "SevenPico/secret/aws"
-  version = "3.1.0"
+  source  = "registry.terraform.io/SevenPico/secret/aws"
+  version = "3.2.1"
   context = module.context.self
   enabled = module.context.enabled && local.create_secret
 
@@ -61,6 +61,7 @@ module "ssl_secret" {
   description                     = "SSL Certificate and Private Key"
   kms_key_deletion_window_in_days = var.kms_key_deletion_window_in_days
   kms_key_enable_key_rotation     = var.kms_key_enable_key_rotation
+  kms_key_multi_region            = var.kms_key_multi_region
   secret_ignore_changes           = local.ignore_secret_changes
   secret_read_principals          = var.secret_read_principals
   secret_string                   = jsonencode(merge(local.secrets, var.additional_secrets))

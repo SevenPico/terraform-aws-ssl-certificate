@@ -21,17 +21,22 @@
 
 # The AWS region currently being used.
 data "aws_region" "current" {
+  count = module.context.enabled ? 1 : 0
 }
 
 # The AWS account id
 data "aws_caller_identity" "current" {
+  count = module.context.enabled ? 1 : 0
 }
 
 # The AWS partition (commercial or govcloud)
 data "aws_partition" "current" {
+  count = module.context.enabled ? 1 : 0
 }
 
 locals {
-  arn_prefix = "arn:${data.aws_partition.current.partition}"
-  arn_template = "${local.arn_prefix}:%s:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}%s"
+  arn_prefix = "arn:${try(data.aws_partition.current[0].partition, "")}"
+  arn_template = "${local.arn_prefix}:%s:${try(data.aws_region.current[0].name,"")}:${try(data.aws_caller_identity.current[0].account_id, "")}%s"
 }
+
+
