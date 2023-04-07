@@ -180,3 +180,8 @@ EOF
 }
 
 
+variable "kms_key_multi_region" {
+  type        = bool
+  default     = false
+  description = "Indicates whether the KMS key is a multi-Region (true) or regional (false) key."
+}
