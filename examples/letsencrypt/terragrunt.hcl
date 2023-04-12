@@ -23,9 +23,10 @@ locals {
 }
 
 inputs = {
+  root_domain = local.root_domain
 
   # Standard Context
-  region = local.region
+  region              = local.region
   tenant              = local.tenant
   project             = local.project
   domain_name         = local.domain_name
