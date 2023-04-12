@@ -149,5 +149,5 @@ variable "kms_key_multi_region" {
 
 variable "save_csr" {
   type        = bool
-  default     = true
+  default     = false
 }
