@@ -29,9 +29,13 @@ locals {
     acme_certificate.this[*].issuer_pem
   ]))
 
+  letsencrypt_csr = one(tls_cert_request.this[*].cert_request_pem)
+
   imported_file_certificate       = local.create_from_file && var.import_filepath_certificate != "" ? file(var.import_filepath_certificate) : ""
   imported_file_private_key       = local.create_from_file && var.import_filepath_private_key != "" ? file(var.import_filepath_private_key) : ""
   imported_file_certificate_chain = local.create_from_file && var.import_filepath_certificate_chain != "" ? file(var.import_filepath_certificate_chain) : ""
+
+  imported_file_csr = local.create_from_file && var.import_filepath_csr != "" ? file(var.import_filepath_csr) : ""
 
   certificate_to_save = local.create_from_file ? local.imported_file_certificate : (
   local.create_letsencrypt ? local.letsencrypt_certificate : "")
@@ -40,10 +44,15 @@ locals {
   private_key_to_save = local.create_from_file ? local.imported_file_private_key : (
   local.create_letsencrypt ? local.letsencrypt_private_key : "")
 
+  csr_to_save = local.create_from_file && var.save_csr ? local.imported_file_csr : (
+  local.create_letsencrypt && var.save_csr ? local.letsencrypt_csr : "")
+
   secrets = {
     "${var.keyname_certificate}"       = local.certificate_to_save
     "${var.keyname_certificate_chain}" = local.certificate_chain_to_save
     "${var.keyname_private_key}"       = local.private_key_to_save
+
+    "${var.keyname_certificate_signing_request}" = local.csr_to_save
   }
 }
 

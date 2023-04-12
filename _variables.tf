@@ -77,6 +77,11 @@ variable "keyname_certificate_chain" {
   default = "CERTIFICATE_CHAIN"
 }
 
+variable "keyname_certificate_signing_request" {
+  type    = string
+  default = "CERTIFICATE_SIGNING_REQUEST"
+}
+
 variable "import_filepath_certificate" {
   default = ""
 }
@@ -86,6 +91,10 @@ variable "import_filepath_certificate_chain" {
 }
 
 variable "import_filepath_private_key" {
+  default = ""
+}
+
+variable "import_filepath_csr" {
   default = ""
 }
 
@@ -136,4 +145,9 @@ variable "kms_key_multi_region" {
   type        = bool
   default     = false
   description = "Indicates whether the KMS key is a multi-Region (true) or regional (false) key."
+}
+
+variable "save_csr" {
+  type        = bool
+  default     = true
 }
