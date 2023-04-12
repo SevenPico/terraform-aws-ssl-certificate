@@ -44,6 +44,7 @@ inputs = {
   dns_name_format     = local.dns_name_format
 
   # Module / Example Specific
+  root_domain = "modules.thebrim.io"
 
 }
 
