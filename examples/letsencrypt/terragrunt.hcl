@@ -2,12 +2,13 @@ locals {
   tenant      = "Brim"
 
   region = get_env("AWS_REGION")
+  root_domain = "modules.thebrim.io"
 
   namespace   = "brim"
   project     = "aws-ssl-secret" //replace(basename(get_repo_root()), "teraform-", "")
   environment = ""
   stage       = basename(get_terragrunt_dir()) //
-  domain_name = "${local.stage}.${local.project}.thebrim.io"
+  domain_name = "${local.stage}.${local.project}.${local.root_domain}.thebrim.io"
 
   tags = { Source = "Managed by Terraform" }
   regex_replace_chars = "/[^-a-zA-Z0-9]/"
@@ -44,7 +45,7 @@ inputs = {
   dns_name_format     = local.dns_name_format
 
   # Module / Example Specific
-  root_domain = "modules.thebrim.io"
+
 
 }
 
