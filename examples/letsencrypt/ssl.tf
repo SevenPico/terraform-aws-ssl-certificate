@@ -35,7 +35,8 @@ module "ssl_certificate_context" {
 module "ssl_certificate" {
   source  = "../.."
   context = module.ssl_certificate_context.self
-  
+
+  save_csr                            = var.save_csr
   additional_dns_names                = []
   additional_secrets                  = { EXAMPLE = "example value" }
   create_mode                         = "LetsEncrypt"
