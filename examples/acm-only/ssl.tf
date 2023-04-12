@@ -54,14 +54,18 @@ module "ssl_certificate" {
   kms_key_enable_key_rotation         = false
   secret_read_principals              = {}
   secret_update_sns_pub_principals    = {
-    type        = "AWS"
-    identifiers = [data.aws_caller_identity.current.account_id]
-    condition   = null
+    RootAccess = {
+      type        = "AWS"
+      identifiers = [data.aws_caller_identity.current.account_id]
+      condition   = null
+    }
   } #{ AWS = [data.aws_caller_identity.current.account_id] }
   secret_update_sns_sub_principals    = {
-    type        = "AWS"
-    identifiers = [data.aws_caller_identity.current.account_id]
-    condition   = null
+    RootAccess = {
+      type        = "AWS"
+      identifiers = [data.aws_caller_identity.current.account_id]
+      condition   = null
+    }
   } #{ AWS = [data.aws_caller_identity.current.account_id] }
   zone_id                             = aws_route53_zone.public[0].id
 }
