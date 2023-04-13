@@ -66,5 +66,5 @@ module "ssl_certificate" {
       condition   = null
     }
   } #{ AWS = [data.aws_caller_identity.current.account_id] }
-  zone_id                             = null
+  zone_id                             = aws_route53_zone.public[0].id
 }
