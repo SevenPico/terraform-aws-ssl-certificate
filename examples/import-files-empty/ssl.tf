@@ -35,19 +35,19 @@ module "ssl_certificate" {
   source  = "../.."
   context = module.ssl_certificate_import_context.self
 
-  #save_csr                            = var.save_csr
+  save_csr                            = var.save_csr
   additional_dns_names                = []
   additional_secrets                  = { EXAMPLE = "example value" }
   create_mode                         = "From_File"
   create_secret_update_sns            = true
   import_filepath_certificate         = "${path.module}/cert.pem"
   import_filepath_certificate_chain   = "${path.module}/chain.pem"
-  #import_filepath_csr                 = "${path.module}/csr.pem"
+  import_filepath_csr                 = "${path.module}/csr.pem"
   import_filepath_private_key         = "${path.module}/key.pem"
   import_secret_arn                   = null
   keyname_certificate                 = "CERTIFICATE"
   keyname_certificate_chain           = "CERTIFICATE_CHAIN"
-  #keyname_certificate_signing_request = "CERTIFICATE_SIGNING_REQUEST"
+  keyname_certificate_signing_request = "CERTIFICATE_SIGNING_REQUEST"
   keyname_private_key                 = "CERTIFICATE_PRIVATE_KEY"
   kms_key_deletion_window_in_days     = 7
   kms_key_enable_key_rotation         = false
