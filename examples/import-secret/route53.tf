@@ -27,7 +27,7 @@ data "aws_route53_zone" "root" {
 
 resource "aws_route53_zone" "public" {
   count = module.context.enabled ? 1 : 0
-  name  = module.context.id
+  name  = module.context.domain_name
   tags  = module.context.tags
 }
 
