@@ -55,14 +55,14 @@ module "ssl_certificate" {
   secret_update_sns_pub_principals    = {
     RootAccess = {
       type        = "AWS"
-      identifiers = [data.aws_caller_identity.current.account_id]
+      identifiers = [try(data.aws_caller_identity.current[0].account_id, "")]
       condition   = null
     }
   } #{ AWS = [data.aws_caller_identity.current.account_id] }
   secret_update_sns_sub_principals    = {
     RootAccess = {
       type        = "AWS"
-      identifiers = [data.aws_caller_identity.current.account_id]
+      identifiers = [try(data.aws_caller_identity.current[0].account_id, "")]
       condition   = null
     }
   } #{ AWS = [data.aws_caller_identity.current.account_id] }
