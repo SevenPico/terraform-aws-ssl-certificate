@@ -59,13 +59,13 @@ module "ssl_certificate" {
       identifiers = [try(data.aws_caller_identity.current[0].account_id, "")]
       condition   = null
     }
-  } #{ AWS = [data.aws_caller_identity.current.account_id] }
+  }
   secret_update_sns_sub_principals    = {
     RootAccess = {
       type        = "AWS"
       identifiers = [try(data.aws_caller_identity.current[0].account_id, "")]
       condition   = null
     }
-  } #{ AWS = [data.aws_caller_identity.current.account_id] }
+  }
   zone_id                             = aws_route53_zone.public[0].id
 }
