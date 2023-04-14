@@ -15,16 +15,29 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./examples/import-files/_providers.tf
+##  ./examples/letsencrypt/route53.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-provider "aws" {
-  region = "us-east-1"
+data "aws_route53_zone" "root" {
+  count = module.context.enabled ? 1 : 0
+  name  = var.root_domain
+
 }
 
-
-provider "acme" {
-  server_url = "https://acme-v02.api.letsencrypt.org/directory"
+resource "aws_route53_zone" "public" {
+  count = module.context.enabled ? 1 : 0
+  name  = module.context.domain_name
+  tags  = module.context.tags
 }
+
+resource "aws_route53_record" "ns" {
+  count   = module.context.enabled ? 1 : 0
+  name    = module.context.id
+  type    = "NS"
+  zone_id = join("", data.aws_route53_zone.root[*].id)
+  records = length(aws_route53_zone.public) > 0 ? aws_route53_zone.public[0].name_servers : []
+  ttl     = 300
+}
+
 

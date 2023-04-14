@@ -15,28 +15,26 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./examples/import-files/_fixtures.context.auto.tfvars
+##  ./examples/letsencrypt/_data.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-enabled   = true
-namespace = "sp"
-#tenant              =
-#project             =
-#region              =
-environment = "if"
-#stage               =
-name = "ssl"
-#delimiter           =
-#attributes          =
-#tags                =
-#additional_tag_map  =
-#label_order         =
-#regex_replace_chars =
-#id_length_limit     =
-#label_key_case      =
-#label_value_case    =
-#descriptor_formats  =
-#labels_as_tags      =
-dns_name_format = "$${name}.$${domain_name}"
-domain_name = "ssl-if.7pi.io"
+# The AWS region currently being used.
+data "aws_region" "current" {
+  count = module.context.enabled ? 1 : 0
+}
+
+# The AWS account id
+data "aws_caller_identity" "current" {
+  count = module.context.enabled ? 1 : 0
+}
+
+# The AWS partition (commercial or govcloud)
+data "aws_partition" "current" {
+  count = module.context.enabled ? 1 : 0
+}
+
+locals {
+  arn_prefix = "arn:${try(data.aws_partition.current[0].partition, "")}"
+  arn_template = "${local.arn_prefix}:%s:${try(data.aws_region.current[0].name,"")}:${try(data.aws_caller_identity.current[0].account_id, "")}%s"
+}

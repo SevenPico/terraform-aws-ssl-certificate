@@ -22,6 +22,7 @@
 locals {
   create_secret = local.create_letsencrypt || local.create_from_file
 
+  letsencrypt_csr         = one(tls_cert_request.this[*].cert_request_pem)
   letsencrypt_certificate = one(acme_certificate.this[*].certificate_pem)
   letsencrypt_private_key = one(tls_private_key.certificate_key[*].private_key_pem)
   letsencrypt_certificate_chain = join("", flatten([
@@ -29,10 +30,13 @@ locals {
     acme_certificate.this[*].issuer_pem
   ]))
 
+  imported_file_csr               = local.create_from_file && var.import_filepath_csr != "" ? file(var.import_filepath_csr) : ""
   imported_file_certificate       = local.create_from_file && var.import_filepath_certificate != "" ? file(var.import_filepath_certificate) : ""
   imported_file_private_key       = local.create_from_file && var.import_filepath_private_key != "" ? file(var.import_filepath_private_key) : ""
   imported_file_certificate_chain = local.create_from_file && var.import_filepath_certificate_chain != "" ? file(var.import_filepath_certificate_chain) : ""
 
+  csr_to_save = local.create_from_file && var.save_csr ? local.imported_file_csr : (
+  local.create_letsencrypt && var.save_csr ? local.letsencrypt_csr : "")
   certificate_to_save = local.create_from_file ? local.imported_file_certificate : (
   local.create_letsencrypt ? local.letsencrypt_certificate : "")
   certificate_chain_to_save = local.create_from_file ? local.imported_file_certificate_chain : (
@@ -40,7 +44,12 @@ locals {
   private_key_to_save = local.create_from_file ? local.imported_file_private_key : (
   local.create_letsencrypt ? local.letsencrypt_private_key : "")
 
-  secrets = {
+  secrets = var.save_csr ? {
+    "${var.keyname_certificate}"                 = local.certificate_to_save
+    "${var.keyname_certificate_chain}"           = local.certificate_chain_to_save
+    "${var.keyname_private_key}"                 = local.private_key_to_save
+    "${var.keyname_certificate_signing_request}" = local.csr_to_save
+    } : {
     "${var.keyname_certificate}"       = local.certificate_to_save
     "${var.keyname_certificate_chain}" = local.certificate_chain_to_save
     "${var.keyname_private_key}"       = local.private_key_to_save
@@ -53,7 +62,7 @@ locals {
 # --------------------------------------------------------------------------
 module "ssl_secret" {
   source  = "registry.terraform.io/SevenPico/secret/aws"
-  version = "3.2.1"
+  version = "3.2.2"
   context = module.context.self
   enabled = module.context.enabled && local.create_secret
 

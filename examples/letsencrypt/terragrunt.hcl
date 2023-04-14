@@ -47,7 +47,7 @@ inputs = {
   dns_name_format     = local.dns_name_format
 
   # Module / Example Specific
-
+  save_csr = true
 
 }
 

@@ -15,14 +15,13 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./examples/import-secret/_providers.tf
+##  ./examples/letsencrypt/_variables.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-provider "aws" {
-  region = "us-east-1"
-}
+variable "root_domain" { }
 
-provider "acme" {
-  server_url = "https://acme-v02.api.letsencrypt.org/directory"
+variable "save_csr" {
+  type        = bool
+  default     = false
 }

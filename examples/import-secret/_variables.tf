@@ -20,3 +20,8 @@
 ## ----------------------------------------------------------------------------
 
 variable "root_domain" { }
+
+variable "save_csr" {
+  type        = bool
+  default     = false
+}
