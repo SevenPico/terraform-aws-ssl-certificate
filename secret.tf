@@ -62,7 +62,7 @@ locals {
 # --------------------------------------------------------------------------
 module "ssl_secret" {
   source  = "registry.terraform.io/SevenPico/secret/aws"
-  version = "3.2.6"
+  version = "3.2.7"
   context = module.context.self
   enabled = module.context.enabled && local.create_secret
 
