@@ -29,8 +29,8 @@ module "ssl_certificate_source_context" {
 }
 
 module "ssl_certificate_import_context" {
-  source  = "SevenPico/context/null"
-  version = "2.0.0"
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
   context    = module.ssl_certificate_source_context.self
   attributes = ["import"]
 }

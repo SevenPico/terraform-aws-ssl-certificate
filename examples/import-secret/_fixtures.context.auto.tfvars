@@ -39,4 +39,4 @@ name = "ssl"
 #descriptor_formats  =
 #labels_as_tags      =
 dns_name_format = "$${name}.$${domain_name}"
-domain_name = "ssl-is.7pi.io"
+domain_name     = "ssl-is.7pi.io"

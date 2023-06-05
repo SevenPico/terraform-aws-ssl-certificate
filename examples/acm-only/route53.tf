@@ -26,6 +26,7 @@ data "aws_route53_zone" "root" {
 }
 
 resource "aws_route53_zone" "public" {
+  #checkov:skip=CKV2_AWS_39:skip (DNS) query logging
   count = module.context.enabled ? 1 : 0
   name  = module.context.id
   tags  = module.context.tags
