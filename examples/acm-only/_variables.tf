@@ -19,4 +19,4 @@
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-variable "root_domain" { }
+variable "root_domain" {}

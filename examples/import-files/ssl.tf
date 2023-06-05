@@ -29,8 +29,8 @@ module "ssl_certificate_source_context" {
 }
 
 module "ssl_certificate_import_context" {
-  source  = "SevenPico/context/null"
-  version = "2.0.0"
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
   context    = module.ssl_certificate_source_context.self
   attributes = ["import"]
 }
@@ -62,33 +62,33 @@ module "ssl_certificate_source" {
 }
 
 data "aws_secretsmanager_secret" "source" {
-  count = module.context.enabled ? 1 : 0
+  count      = module.context.enabled ? 1 : 0
   depends_on = [module.ssl_certificate_source]
 
   arn = module.ssl_certificate_source.secret_arn
 }
 data "aws_secretsmanager_secret_version" "source" {
-  count = module.context.enabled ? 1 : 0
+  count      = module.context.enabled ? 1 : 0
   depends_on = [module.ssl_certificate_source]
 
-  secret_id = data.aws_secretsmanager_secret.source[0].id
+  secret_id     = data.aws_secretsmanager_secret.source[0].id
   version_stage = "AWSCURRENT"
 }
 
 resource "local_file" "key" {
-  count = module.context.enabled ? 1 : 0
+  count    = module.context.enabled ? 1 : 0
   filename = "${path.module}/key.pem"
   content  = jsondecode(data.aws_secretsmanager_secret_version.source[0].secret_string)[module.ssl_certificate_source.keyname_private_key]
 }
 
 resource "local_file" "certificate" {
-  count = module.context.enabled ? 1 : 0
+  count    = module.context.enabled ? 1 : 0
   filename = "${path.module}/cert.pem"
   content  = jsondecode(data.aws_secretsmanager_secret_version.source[0].secret_string)[module.ssl_certificate_source.keyname_certificate]
 }
 
 resource "local_file" "certificate_chain" {
-  count = module.context.enabled ? 1 : 0
+  count    = module.context.enabled ? 1 : 0
   filename = "${path.module}/chain.pem"
   content  = jsondecode(data.aws_secretsmanager_secret_version.source[0].secret_string)[module.ssl_certificate_source.keyname_certificate_chain]
 }
@@ -98,9 +98,9 @@ resource "local_file" "certificate_chain" {
 # SSL Certificate Import
 # ------------------------------------------------------------------------------
 module "ssl_certificate" {
-  source  = "../.."
-  context = module.ssl_certificate_import_context.self
-  depends_on = [module.ssl_certificate_source ,local_file.certificate, local_file.certificate_chain, local_file.key]
+  source     = "../.."
+  context    = module.ssl_certificate_import_context.self
+  depends_on = [module.ssl_certificate_source, local_file.certificate, local_file.certificate_chain, local_file.key]
 
   additional_dns_names              = []
   additional_secrets                = { EXAMPLE = "example value" }
