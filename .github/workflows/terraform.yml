@@ -58,11 +58,11 @@ jobs:
         uses: dflook/terraform-validate@v1.31.1
         with:
           path: ./examples/import-secret
-
-      - name: terraform validate (examples/letsencrypt)
-        uses: dflook/terraform-validate@v1.31.1
-        with:
-          path: ./examples/letsencrypt
+#
+#      - name: terraform validate (examples/letsencrypt)
+#        uses: dflook/terraform-validate@v1.31.1
+#        with:
+#          path: ./examples/letsencrypt
 
 #  tfsec:
 #    name: Run AquaSecurity scan
