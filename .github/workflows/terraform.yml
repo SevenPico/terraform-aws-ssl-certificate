@@ -7,7 +7,6 @@ on:
       - 'NOTICE'
       - 'README.md'
       - '.gitignore'
-#      - 'examples/letsencrypt/terragrunt.hcl'
     branches:
       - master
       - develop
@@ -36,31 +35,6 @@ jobs:
 
       - name: terraform validate
         uses: dflook/terraform-validate@v1.31.1
-
-#      - name: terraform validate (examples/acm-only)
-#        uses: dflook/terraform-validate@v1.31.1
-#        with:
-#          path: ./examples/acm-only
-#
-#      - name: terraform validate (examples/import-files)
-#        uses: dflook/terraform-validate@v1.31.1
-#        with:
-#          path: ./examples/import-files
-#
-#      - name: terraform validate (examples/import-files-empty)
-#        uses: dflook/terraform-validate@v1.31.1
-#        with:
-#          path: ./examples/import-files-empty
-#
-#      - name: terraform validate (examples/import-secret)
-#        uses: dflook/terraform-validate@v1.31.1
-#        with:
-#          path: ./examples/import-secret
-#
-#      - name: terraform validate (examples/letsencrypt)
-#        uses: dflook/terraform-validate@v1.31.1
-#        with:
-#          path: ./examples/letsencrypt
 
 #  tfsec:
 #    name: Run AquaSecurity scan
