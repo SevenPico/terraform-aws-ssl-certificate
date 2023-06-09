@@ -19,9 +19,9 @@
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-variable "root_domain" { }
+variable "root_domain" {}
 
 variable "save_csr" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }

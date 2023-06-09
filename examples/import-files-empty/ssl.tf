@@ -52,19 +52,19 @@ module "ssl_certificate" {
   kms_key_deletion_window_in_days     = 7
   kms_key_enable_key_rotation         = false
   secret_read_principals              = {}
-  secret_update_sns_pub_principals    = {
+  secret_update_sns_pub_principals = {
     RootAccess = {
       type        = "AWS"
       identifiers = [try(data.aws_caller_identity.current[0].account_id, "")]
       condition   = null
     }
   }
-  secret_update_sns_sub_principals    = {
+  secret_update_sns_sub_principals = {
     RootAccess = {
       type        = "AWS"
       identifiers = [try(data.aws_caller_identity.current[0].account_id, "")]
       condition   = null
     }
   }
-  zone_id                             = aws_route53_zone.public[0].id
+  zone_id = aws_route53_zone.public[0].id
 }
