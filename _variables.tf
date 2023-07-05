@@ -132,12 +132,12 @@ variable "kms_key_enable_key_rotation" {
 }
 
 variable "create_wildcard" {
-   type        = bool
-   default     = true
- }
+  type    = bool
+  default = true
+}
 
 variable "registration_email_address" {
-  type = string
+  type    = string
   default = ""
 }
 
@@ -148,6 +148,6 @@ variable "kms_key_multi_region" {
 }
 
 variable "save_csr" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
