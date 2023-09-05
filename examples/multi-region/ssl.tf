@@ -64,6 +64,7 @@ resource "aws_kms_replica_key" "secondary" {
 module "ssl_certificate" {
   source  = "../.."
   context = module.ssl_certificate_context.self
+  depends_on = [module.kms_key]
 
   replica_regions = local.multi_region_enabled ? ["us-east-1"] : []
   kms_key_id      = module.kms_key.key_id
