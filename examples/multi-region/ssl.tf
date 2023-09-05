@@ -64,7 +64,7 @@ module "ssl_certificate" {
   context = module.ssl_certificate_context.self
 
   replica_regions = local.multi_region_enabled ? ["us-east-1"] : []
-  kms_key_id     = module.kms_key.key_id
+  kms_key_id      = module.kms_key.key_id
 
   save_csr                            = var.save_csr
   additional_dns_names                = []
