@@ -108,7 +108,7 @@ module "ssl_certificate_us-east-1" {
   save_csr                            = var.save_csr
   additional_dns_names                = []
   additional_secrets                  = { EXAMPLE = "example value" }
-  create_mode                         = "ImportSecret"
+  create_mode                         = "From_Secret"
   create_secret_update_sns            = true
   create_wildcard                     = true
   import_filepath_certificate         = null
