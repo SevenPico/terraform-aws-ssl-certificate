@@ -25,3 +25,14 @@ variable "save_csr" {
   type    = bool
   default = false
 }
+variable "vpc_cidr_block" {
+  type = string
+}
+variable "availability_zones" {
+  type = list(string)
+}
+
+variable "cloudtrail_log_storage_lifecycle_rules" {
+  type    = list(any)
+  default = []
+}

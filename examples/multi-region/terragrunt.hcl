@@ -49,6 +49,10 @@ inputs = {
   # Module / Example Specific
   save_csr = true
 
+   # Module / Example Specific
+  vpc_cidr_block     = "10.10.0.0/16"
+  availability_zones = ["us-west-1a", "us-west-1b", "us-west-1c"]
+
 }
 
 remote_state {
