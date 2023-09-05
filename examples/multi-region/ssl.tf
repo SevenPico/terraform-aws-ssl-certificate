@@ -158,7 +158,7 @@ module "ssl_updater" {
 
 module "ssl_updater_us_east_1" {
   providers = {
-    aws = aws.us-east-1
+    aws = aws.alias
   }
   source     = "registry.terraform.io/SevenPico/ssl-update/aws"
   version    = "0.1.2"
