@@ -93,7 +93,7 @@ generate "providers" {
   }
 
   provider "aws" {
-    alias   = "alias"
+    alias   = "us-east-1"
     region  = "us-east-1"
   }
 

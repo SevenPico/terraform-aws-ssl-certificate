@@ -50,7 +50,7 @@ module "kms_key" {
 }
 
 resource "kms_replica_key" "secondary" {
-  provider        = aws.alias
+  provider        = aws.us-east-1
   count           = module.context.enabled && local.multi_region_enabled ? 1 : 0
   description     = "Multi-region replica key for Secrets Manager in us-east-1"
   primary_key_arn = module.kms_key.key_arn
@@ -160,7 +160,7 @@ module "ssl_updater" {
 
 module "ssl_updater_us_east_1" {
   providers = {
-    aws = aws.alias
+    aws = aws.us-east-1
   }
   source     = "registry.terraform.io/SevenPico/ssl-update/aws"
   version    = "0.1.2"
