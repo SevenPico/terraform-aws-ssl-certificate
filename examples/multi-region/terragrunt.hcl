@@ -60,7 +60,7 @@ remote_state {
     dynamodb_table        = "brim-sandbox-tfstate-lock"
     encrypt               = true
     key                   = "${local.account_id}/${local.project}/${local.stage}/terraform.tfstate"
-    region                = local.region
+    region                = "us-east-1"
   }
   generate = {
     path      = "generated-backend.tf"
