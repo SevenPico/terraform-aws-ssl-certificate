@@ -49,7 +49,7 @@ module "kms_key" {
   policy                   = "" #try(data.aws_iam_policy_document.kms_key_access_policy_doc[0].json, "")
 }
 
-resource "kms_replica_key" "secondary" {
+resource "aws_kms_replica_key" "secondary" {
   provider        = aws.us-east-1
   count           = module.context.enabled && local.multi_region_enabled ? 1 : 0
   description     = "Multi-region replica key for Secrets Manager in us-east-1"
