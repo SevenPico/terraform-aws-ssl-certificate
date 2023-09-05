@@ -15,29 +15,42 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./_data.tf
+##  ./examples/letsencrypt/_outputs.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-# The AWS region currently being used.
-data "aws_region" "current" {
-  count = module.context.enabled ? 1 : 0
+output "kms_key_arn" {
+  value = module.ssl_certificate.kms_key_arn
 }
 
-# The AWS account id
-data "aws_caller_identity" "current" {
-  count = module.context.enabled ? 1 : 0
+output "kms_key_alias_name" {
+  value = module.ssl_certificate.kms_key_alias_name
 }
 
-# The AWS partition (commercial or govcloud)
-data "aws_partition" "current" {
-  count = module.context.enabled ? 1 : 0
+output "kms_key_alias_arn" {
+  value = module.ssl_certificate.kms_key_alias_arn
 }
 
-locals {
-  arn_prefix = "arn:${try(data.aws_partition.current[0].partition, "")}"
-  account_id = try(data.aws_caller_identity.current[0].account_id, "")
-  region     = try(data.aws_region.current[0].name, "")
+output "secret_arn" {
+  value = module.ssl_certificate.secret_arn
 }
 
+output "acm_certificate_arn" {
+  value = module.ssl_certificate.acm_certificate_arn
+}
 
+output "acm_certificate_id" {
+  value = module.ssl_certificate.acm_certificate_id
+}
+
+output "keyname_certificate" {
+  value = module.ssl_certificate.keyname_certificate
+}
+
+output "keyname_private_key" {
+  value = module.ssl_certificate.keyname_private_key
+}
+
+output "keyname_certificate_chain" {
+  value = module.ssl_certificate.keyname_certificate_chain
+}
