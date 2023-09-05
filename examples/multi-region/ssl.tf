@@ -91,7 +91,7 @@ module "ssl_certificate" {
   zone_id                             = null
 }
 
-module "ssl_certificate_us-east-1" {
+module "ssl_certificate_us_east_1" {
   providers = {
     aws = aws.us-east-1
   }
@@ -157,6 +157,7 @@ module "certbot" {
   target_secret_arn                              = module.ssl_certificate.secret_arn
   vpc_id                                         = module.vpc.vpc_id
   vpc_private_subnet_ids                         = module.vpc_subnets.private_subnet_ids
+  reserved_concurrent_executions                 = -1
 }
 
 
@@ -205,7 +206,7 @@ module "ssl_updater_us_east_1" {
   enabled    = module.context.enabled && local.multi_region_enabled
   depends_on = [module.certbot]
 
-  sns_topic_arn                 = module.ssl_certificate.sns_topic_arn
+  sns_topic_arn                 = module.ssl_certificate_us_east_1.sns_topic_arn
   acm_certificate_arn           = module.ssl_certificate.acm_certificate_arn
   cloudwatch_log_retention_days = 30
   ecs_cluster_arn               = ""
