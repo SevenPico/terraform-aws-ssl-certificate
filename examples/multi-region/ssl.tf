@@ -50,9 +50,11 @@ module "kms_key" {
 }
 
 resource "kms_replica_key" "secondary" {
+  provider        = aws.alias
   count           = module.context.enabled && local.multi_region_enabled ? 1 : 0
   description     = "Multi-region replica key for Secrets Manager in us-east-1"
   primary_key_arn = module.kms_key.key_arn
+
 }
 
 
