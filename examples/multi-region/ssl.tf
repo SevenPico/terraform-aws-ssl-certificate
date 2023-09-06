@@ -211,7 +211,7 @@ module "ssl_updater_us_east_1" {
   enabled    = module.context.enabled && local.multi_region_enabled
   depends_on = [module.certbot]
 
-  sns_topic_arn                 = module.ssl_certificate_us_east_1.sns_topic_arn
+  sns_topic_arn                 = module.ssl_certificate.sns_topic_arn
   acm_certificate_arn           = module.ssl_certificate_us_east_1.acm_certificate_arn
   cloudwatch_log_retention_days = 30
   ecs_cluster_arn               = ""
@@ -219,8 +219,8 @@ module "ssl_updater_us_east_1" {
   keyname_certificate           = "CERTIFICATE"
   keyname_certificate_chain     = "CERTIFICATE_CHAIN"
   keyname_private_key           = "CERTIFICATE_PRIVATE_KEY"
-  kms_key_arn                   = module.ssl_certificate_us_east_1.kms_key_arn
-  secret_arn                    = module.ssl_certificate_us_east_1.secret_arn
+  kms_key_arn                   = module.ssl_certificate.kms_key_arn
+  secret_arn                    = replace(module.ssl_certificate.secret_arn, local.region , "us-east-1")
   ssm_adhoc_command             = ""
   ssm_named_document            = ""
   ssm_target_key                = "tag:Name"
