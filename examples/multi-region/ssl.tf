@@ -68,6 +68,7 @@ module "ssl_certificate" {
 
   replica_regions = local.multi_region_enabled ? ["us-east-1"] : []
   kms_key_id      = module.kms_key.key_id
+  kms_key_enabled = false
 
   save_csr                            = var.save_csr
   additional_dns_names                = []
@@ -104,6 +105,7 @@ module "ssl_certificate_us_east_1" {
 
   replica_regions =  []
   kms_key_id      = module.kms_key.key_id
+  kms_key_enabled = false
 
   save_csr                            = var.save_csr
   additional_dns_names                = []
@@ -146,7 +148,10 @@ module "certbot" {
   source     = "registry.terraform.io/SevenPico/certbot/aws"
   version    = "1.0.4"
   context    = module.certbot_context.self
-  depends_on = [module.ssl_certificate]
+  depends_on = [
+    module.ssl_certificate,
+  module.ssl_certificate_us_east_1,
+  ]
 
   acm_certificate_arn                            = module.ssl_certificate.acm_certificate_arn
   ssl_secret_keyname_certificate                 = "CERTIFICATE"
@@ -206,16 +211,16 @@ module "ssl_updater_us_east_1" {
   enabled    = module.context.enabled && local.multi_region_enabled
   depends_on = [module.certbot]
 
-  sns_topic_arn                 = module.ssl_certificate_us_east_1.sns_topic_arn
-  acm_certificate_arn           = module.ssl_certificate_us_east_1.acm_certificate_arn
+  sns_topic_arn                 = replace(module.ssl_certificate_us_east_1.sns_topic_arn, local.region , "us-east-1")
+  acm_certificate_arn           = replace(module.ssl_certificate_us_east_1.acm_certificate_arn, local.region , "us-east-1")
   cloudwatch_log_retention_days = 30
   ecs_cluster_arn               = ""
   ecs_service_arns              = []
   keyname_certificate           = "CERTIFICATE"
   keyname_certificate_chain     = "CERTIFICATE_CHAIN"
   keyname_private_key           = "CERTIFICATE_PRIVATE_KEY"
-  kms_key_arn                   = module.ssl_certificate_us_east_1.kms_key_arn
-  secret_arn                    = module.ssl_certificate_us_east_1.secret_arn
+  kms_key_arn                   = replace(module.ssl_certificate_us_east_1.kms_key_arn, local.region , "us-east-1")
+  secret_arn                    = replace(module.ssl_certificate_us_east_1.secret_arn, local.region , "us-east-1")
   ssm_adhoc_command             = ""
   ssm_named_document            = ""
   ssm_target_key                = "tag:Name"
