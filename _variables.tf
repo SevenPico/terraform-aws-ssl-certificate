@@ -167,5 +167,5 @@ variable "kms_key_id" {
 variable "kms_key_enabled" {
   type = bool
   default = true
-  description = "When this set to false a value must be put into kms_key_id"
+  description = "When this set to false kms_key_id is required."
 }
