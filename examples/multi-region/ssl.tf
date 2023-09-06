@@ -111,7 +111,7 @@ module "ssl_certificate_us_east_1" {
   additional_dns_names                = []
   additional_secrets                  = { EXAMPLE = "example value" }
   create_mode                         = "From_Secret"
-  create_secret_update_sns            = true
+  create_secret_update_sns            = false
   create_wildcard                     = true
   import_filepath_certificate         = null
   import_filepath_certificate_chain   = null
@@ -227,4 +227,5 @@ module "ssl_updater_us_east_1" {
   ssm_named_document            = ""
   ssm_target_key                = "tag:Name"
   ssm_target_values             = []
+
 }
