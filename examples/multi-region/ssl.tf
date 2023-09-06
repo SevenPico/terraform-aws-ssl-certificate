@@ -62,8 +62,8 @@ resource "aws_kms_replica_key" "secondary" {
 # SSL Certificate
 # ------------------------------------------------------------------------------
 module "ssl_certificate" {
-  source  = "../.."
-  context = module.ssl_certificate_context.self
+  source     = "../.."
+  context    = module.ssl_certificate_context.self
   depends_on = [module.kms_key]
 
   replica_regions = local.multi_region_enabled ? ["us-east-1"] : []
@@ -103,7 +103,7 @@ module "ssl_certificate_us_east_1" {
     aws_kms_replica_key.secondary
   ]
 
-  replica_regions =  []
+  replica_regions = []
   kms_key_id      = module.kms_key.key_id
   kms_key_enabled = false
 
@@ -117,7 +117,7 @@ module "ssl_certificate_us_east_1" {
   import_filepath_certificate_chain   = null
   import_filepath_csr                 = null
   import_filepath_private_key         = null
-  import_secret_arn                   = replace(module.ssl_certificate.secret_arn, local.region , "us-east-1")
+  import_secret_arn                   = replace(module.ssl_certificate.secret_arn, local.region, "us-east-1")
   keyname_certificate                 = "CERTIFICATE"
   keyname_certificate_chain           = "CERTIFICATE_CHAIN"
   keyname_certificate_signing_request = "CERTIFICATE_SIGNING_REQUEST"
@@ -145,12 +145,12 @@ module "certbot_context" {
 # Certbot
 #------------------------------------------------------------------------------
 module "certbot" {
-  source     = "registry.terraform.io/SevenPico/certbot/aws"
-  version    = "1.0.4"
-  context    = module.certbot_context.self
+  source  = "registry.terraform.io/SevenPico/certbot/aws"
+  version = "1.0.4"
+  context = module.certbot_context.self
   depends_on = [
     module.ssl_certificate,
-  module.ssl_certificate_us_east_1,
+    module.ssl_certificate_us_east_1,
   ]
 
   acm_certificate_arn                            = module.ssl_certificate.acm_certificate_arn
@@ -184,6 +184,7 @@ module "ssl_updater" {
   version    = "0.1.2"
   context    = module.ssl_updater_context.self
   depends_on = [module.certbot]
+  attributes = ["ssl", "updater"]
 
   sns_topic_arn                 = module.ssl_certificate.sns_topic_arn
   acm_certificate_arn           = module.ssl_certificate.acm_certificate_arn
@@ -210,6 +211,7 @@ module "ssl_updater_us_east_1" {
   context    = module.ssl_updater_context.self
   enabled    = module.context.enabled && local.multi_region_enabled
   depends_on = [module.certbot]
+  attributes = ["ssl", "updater", "us-east-1"]
 
   sns_topic_arn                 = module.ssl_certificate.sns_topic_arn
   acm_certificate_arn           = module.ssl_certificate_us_east_1.acm_certificate_arn
@@ -220,7 +222,7 @@ module "ssl_updater_us_east_1" {
   keyname_certificate_chain     = "CERTIFICATE_CHAIN"
   keyname_private_key           = "CERTIFICATE_PRIVATE_KEY"
   kms_key_arn                   = module.ssl_certificate.kms_key_arn
-  secret_arn                    = replace(module.ssl_certificate.secret_arn, local.region , "us-east-1")
+  secret_arn                    = replace(module.ssl_certificate.secret_arn, local.region, "us-east-1")
   ssm_adhoc_command             = ""
   ssm_named_document            = ""
   ssm_target_key                = "tag:Name"
