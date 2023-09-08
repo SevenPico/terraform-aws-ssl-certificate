@@ -234,6 +234,10 @@ module "ssl_updater_us_east_1" {
 
 resource "aws_sns_topic_subscription" "lambda" {
   count     = module.context.enabled ? 1 : 0
+  depends_on = [
+    module.ssl_certificate,
+    module.ssl_updater_us_east_1,
+  ]
   endpoint  = module.ssl_updater_us_east_1.function_arn
   protocol  = "lambda"
   topic_arn = module.ssl_certificate.sns_topic_arn
@@ -242,6 +246,10 @@ resource "aws_sns_topic_subscription" "lambda" {
 resource "aws_lambda_permission" "sns" {
   provider      = aws.us-east-1
   count         = module.context.enabled ? 1 : 0
+  depends_on    = [
+    module.ssl_certificate,
+    module.ssl_updater_us_east_1,
+  ]
   action        = "lambda:InvokeFunction"
   function_name = module.ssl_updater_us_east_1.function_name
   principal     = "sns.amazonaws.com"
