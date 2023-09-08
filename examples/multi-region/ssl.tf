@@ -240,6 +240,7 @@ resource "aws_sns_topic_subscription" "lambda" {
 }
 
 resource "aws_lambda_permission" "sns" {
+  provider      = aws.us-east-1
   count         = module.context.enabled ? 1 : 0
   action        = "lambda:InvokeFunction"
   function_name = module.ssl_updater_us_east_1.function_name
