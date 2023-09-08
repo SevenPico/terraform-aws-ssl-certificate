@@ -86,7 +86,20 @@ module "ssl_certificate" {
   keyname_certificate_signing_request = "CERTIFICATE_SIGNING_REQUEST"
   keyname_private_key                 = "CERTIFICATE_PRIVATE_KEY"
   registration_email_address          = ""
-  secret_read_principals              = {}
+  secret_read_principals = {
+    AllowRootRead = {
+      type = "Service"
+      identifiers = [
+        "events.amazonaws.com"
+      ]
+      condition = {
+        test = null
+        values = [
+        ]
+        variable = null
+      }
+    }
+  }
   secret_update_sns_pub_principals    = {}
   secret_update_sns_sub_principals    = {}
   zone_id                             = null
@@ -123,7 +136,20 @@ module "ssl_certificate_us_east_1" {
   keyname_certificate_signing_request = "CERTIFICATE_SIGNING_REQUEST"
   keyname_private_key                 = "CERTIFICATE_PRIVATE_KEY"
   registration_email_address          = ""
-  secret_read_principals              = {}
+  secret_read_principals = {
+    AllowRootRead = {
+      type = "Service"
+      identifiers = [
+        "events.amazonaws.com"
+      ]
+      condition = {
+        test = null
+        values = [
+        ]
+        variable = null
+      }
+    }
+  }
   secret_update_sns_pub_principals    = {}
   secret_update_sns_sub_principals    = {}
   zone_id                             = null
