@@ -35,6 +35,36 @@ module "ssl_certificate_context" {
 # ------------------------------------------------------------------------------
 # KMS Key
 # ------------------------------------------------------------------------------
+data "aws_iam_policy_document" "kms_key_access_policy_doc" {
+  count = module.context.enabled ? 1 : 0
+  statement {
+    effect    = "Allow"
+    actions   = ["kms:*"]
+    resources = ["*"]
+    sid       = "AllowRoot"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${try(data.aws_caller_identity.current[0].account_id, "")}:root"]
+    }
+  }
+  statement {
+      effect = "Allow"
+      sid    = "AllowDecrypt"
+      actions = [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:GenerateDataKey*"
+      ]
+      resources = ["*"]
+
+      principals {
+          type        = "Service"
+          identifiers = "events.amazonaws.com"
+      }
+    }
+}
+
 module "kms_key" {
   source  = "SevenPicoForks/kms-key/aws"
   version = "2.0.0"
@@ -46,7 +76,7 @@ module "kms_key" {
   enable_key_rotation      = true
   key_usage                = "ENCRYPT_DECRYPT"
   multi_region             = local.multi_region_enabled
-  policy                   = "" #try(data.aws_iam_policy_document.kms_key_access_policy_doc[0].json, "")
+  policy                   = try(data.aws_iam_policy_document.kms_key_access_policy_doc[0].json, "")
 }
 
 resource "aws_kms_replica_key" "secondary" {
