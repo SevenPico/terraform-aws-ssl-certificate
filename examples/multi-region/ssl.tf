@@ -49,20 +49,20 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
     }
   }
   statement {
-      effect = "Allow"
-      sid    = "AllowDecrypt"
-      actions = [
-        "kms:Decrypt",
-        "kms:DescribeKey",
-        "kms:GenerateDataKey*"
-      ]
-      resources = ["*"]
+    effect = "Allow"
+    sid    = "AllowDecrypt"
+    actions = [
+      "kms:Decrypt",
+      "kms:DescribeKey",
+      "kms:GenerateDataKey*"
+    ]
+    resources = ["*"]
 
-      principals {
-          type        = "Service"
-          identifiers = "events.amazonaws.com"
-      }
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
     }
+  }
 }
 
 module "kms_key" {
@@ -92,9 +92,8 @@ resource "aws_kms_replica_key" "secondary" {
 # SSL Certificate
 # ------------------------------------------------------------------------------
 module "ssl_certificate" {
-  source     = "../.."
-  context    = module.ssl_certificate_context.self
-  depends_on = [module.kms_key]
+  source  = "../.."
+  context = module.ssl_certificate_context.self
 
   replica_regions = local.multi_region_enabled ? ["us-east-1"] : []
   kms_key_id      = module.kms_key.key_id
@@ -130,9 +129,9 @@ module "ssl_certificate" {
       }
     }
   }
-  secret_update_sns_pub_principals    = {}
-  secret_update_sns_sub_principals    = {}
-  zone_id                             = null
+  secret_update_sns_pub_principals = {}
+  secret_update_sns_sub_principals = {}
+  zone_id                          = null
 }
 
 module "ssl_certificate_us_east_1" {
@@ -143,7 +142,6 @@ module "ssl_certificate_us_east_1" {
   context = module.ssl_certificate_context.self
   depends_on = [
     module.ssl_certificate,
-    aws_kms_replica_key.secondary
   ]
 
   replica_regions = []
@@ -180,9 +178,9 @@ module "ssl_certificate_us_east_1" {
       }
     }
   }
-  secret_update_sns_pub_principals    = {}
-  secret_update_sns_sub_principals    = {}
-  zone_id                             = null
+  secret_update_sns_pub_principals = {}
+  secret_update_sns_sub_principals = {}
+  zone_id                          = null
 }
 
 
@@ -237,14 +235,15 @@ module "ssl_updater_context" {
 #------------------------------------------------------------------------------
 module "ssl_updater" {
   #  source     = "registry.terraform.io/SevenPico/ssl-update/aws"
-#  version    = "0.1.2"
-  source = "git::https://github.com/SevenPico/terraform-aws-ssl-update.git?ref=hotfix/fix_sns_topic_subscription"
+  #  version    = "0.1.2"
+  source     = "git::https://github.com/SevenPico/terraform-aws-ssl-update.git?ref=hotfix/fix_sns_topic_subscription"
   context    = module.ssl_updater_context.self
   depends_on = [module.certbot]
   attributes = ["ssl", "updater"]
 
   sns_topic_arn                 = module.ssl_certificate.sns_topic_arn
   acm_certificate_arn           = module.ssl_certificate.acm_certificate_arn
+  acm_certificate_arn_replicas  = { "us-east-1" = "module.ssl_certificate.acm_certificate_arn" }
   cloudwatch_log_retention_days = 30
   ecs_cluster_arn               = ""
   ecs_service_arns              = []
@@ -259,30 +258,30 @@ module "ssl_updater" {
   ssm_target_values             = []
 }
 
-module "ssl_updater_us_east_1" {
-  providers = {
-    aws = aws.us-east-1
-  }
-#  source     = "registry.terraform.io/SevenPico/ssl-update/aws"
-#  version    = "0.1.2"
-  source = "git::https://github.com/SevenPico/terraform-aws-ssl-update.git?ref=hotfix/fix_sns_topic_subscription"
-  context    = module.ssl_updater_context.self
-  enabled    = module.context.enabled && local.multi_region_enabled
-  depends_on = [module.certbot]
-  attributes = ["ssl", "updater", "us-east-1"]
-
-  sns_topic_arn                 = module.ssl_certificate.sns_topic_arn
-  acm_certificate_arn           = module.ssl_certificate_us_east_1.acm_certificate_arn
-  cloudwatch_log_retention_days = 30
-  ecs_cluster_arn               = ""
-  ecs_service_arns              = []
-  keyname_certificate           = "CERTIFICATE"
-  keyname_certificate_chain     = "CERTIFICATE_CHAIN"
-  keyname_private_key           = "CERTIFICATE_PRIVATE_KEY"
-  kms_key_arn                   = module.ssl_certificate.kms_key_arn
-  secret_arn                    = replace(module.ssl_certificate.secret_arn, local.region, "us-east-1")
-  ssm_adhoc_command             = ""
-  ssm_named_document            = ""
-  ssm_target_key                = "tag:Name"
-  ssm_target_values             = []
-}
+#module "ssl_updater_us_east_1" {
+#  providers = {
+#    aws = aws.us-east-1
+#  }
+##  source     = "registry.terraform.io/SevenPico/ssl-update/aws"
+##  version    = "0.1.2"
+#  source = "git::https://github.com/SevenPico/terraform-aws-ssl-update.git?ref=hotfix/fix_sns_topic_subscription"
+#  context    = module.ssl_updater_context.self
+#  enabled    = module.context.enabled && local.multi_region_enabled
+#  depends_on = [module.certbot]
+#  attributes = ["ssl", "updater", "us-east-1"]
+#
+#  sns_topic_arn                 = module.ssl_certificate.sns_topic_arn
+#  acm_certificate_arn           = module.ssl_certificate_us_east_1.acm_certificate_arn
+#  cloudwatch_log_retention_days = 30
+#  ecs_cluster_arn               = ""
+#  ecs_service_arns              = []
+#  keyname_certificate           = "CERTIFICATE"
+#  keyname_certificate_chain     = "CERTIFICATE_CHAIN"
+#  keyname_private_key           = "CERTIFICATE_PRIVATE_KEY"
+#  kms_key_arn                   = module.ssl_certificate.kms_key_arn
+#  secret_arn                    = replace(module.ssl_certificate.secret_arn, local.region, "us-east-1")
+#  ssm_adhoc_command             = ""
+#  ssm_named_document            = ""
+#  ssm_target_key                = "tag:Name"
+#  ssm_target_values             = []
+#}
