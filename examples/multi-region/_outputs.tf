@@ -44,11 +44,11 @@ output "acm_certificate_id" {
 }
 
 output "acm_certificate_replica_arn" {
-  value = module.ssl_certificate.acm_certificate_arn
+  value = module.ssl_certificate_us_east_1.acm_certificate_arn
 }
 
 output "acm_certificate_replica_id" {
-  value = module.ssl_certificate.acm_certificate_id
+  value = module.ssl_certificate_us_east_1.acm_certificate_id
 }
 
 output "keyname_certificate" {
