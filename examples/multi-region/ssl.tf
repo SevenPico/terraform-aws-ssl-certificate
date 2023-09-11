@@ -238,9 +238,12 @@ module "ssl_updater" {
   #  version    = "0.1.2"
   source     = "git::https://github.com/SevenPico/terraform-aws-ssl-update.git?ref=hotfix/fix_sns_topic_subscription"
   context    = module.ssl_updater_context.self
-  depends_on = [module.certbot]
   attributes = ["ssl", "updater"]
-
+  depends_on = [
+    module.certbot,
+    module.ssl_certificate,
+    module.ssl_certificate_us_east_1
+  ]
   sns_topic_arn                 = module.ssl_certificate.sns_topic_arn
   acm_certificate_arn           = module.ssl_certificate.acm_certificate_arn
   acm_certificate_arn_replicas  = {
