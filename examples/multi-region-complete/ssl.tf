@@ -22,6 +22,8 @@
 locals {
   multi_region_enabled = local.region != "us-east-1"
 }
+
+
 # ------------------------------------------------------------------------------
 # SSL Certificate Context
 # ------------------------------------------------------------------------------
@@ -235,9 +237,8 @@ module "ssl_updater_context" {
 # SSL Updater
 #------------------------------------------------------------------------------
 module "ssl_updater" {
-  #  source     = "registry.terraform.io/SevenPico/ssl-update/aws"
-  #  version    = "0.1.2"
-  source     = "git::https://github.com/SevenPico/terraform-aws-ssl-update.git?ref=hotfix/fix_sns_topic_subscription"
+  source     = "registry.terraform.io/SevenPico/ssl-update/aws"
+  version    = "0.1.3"
   context    = module.ssl_updater_context.self
   attributes = ["ssl", "updater"]
   depends_on = [
