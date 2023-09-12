@@ -245,9 +245,9 @@ module "ssl_updater" {
     module.ssl_certificate,
     module.ssl_certificate_us_east_1
   ]
-  sns_topic_arn                 = module.ssl_certificate.sns_topic_arn
-  acm_certificate_arn           = module.ssl_certificate.acm_certificate_arn
-  acm_certificate_arn_replicas  = {
+  sns_topic_arn       = module.ssl_certificate.sns_topic_arn
+  acm_certificate_arn = module.ssl_certificate.acm_certificate_arn
+  acm_certificate_arn_replicas = {
     us-east-1 = module.ssl_certificate_us_east_1.acm_certificate_arn,
   }
   cloudwatch_log_retention_days = 30

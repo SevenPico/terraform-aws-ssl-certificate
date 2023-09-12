@@ -61,9 +61,8 @@ locals {
 # SSL Certificate SecretsManager Secret
 # --------------------------------------------------------------------------
 module "ssl_secret" {
-  #  source  = "registry.terraform.io/SevenPico/secret/aws"
-  #  version = "3.2.7"
-  source  = "git::https://github.com/SevenPico/terraform-aws-secret.git?ref=feature/multi_region"
+  source  = "registry.terraform.io/SevenPico/secret/aws"
+  version = "3.2.8"
   context = module.context.self
   enabled = module.context.enabled && local.create_secret
 
