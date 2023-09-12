@@ -120,13 +120,13 @@ variable "zone_id" {
 }
 
 variable "kms_key_deletion_window_in_days" {
-  description = "Deletion window for KMS Keys created in this module."
+  description = "Deletion window for KMS Keys created in this module. This is disable when kms_key_id != null."
   type        = number
   default     = 30
 }
 
 variable "kms_key_enable_key_rotation" {
-  description = "Turn on KMS Key rotation for KMS Keys created in this module."
+  description = "Turn on KMS Key rotation for KMS Keys created in this module. This is disable when kms_key_id != null."
   type        = bool
   default     = true
 }
@@ -144,10 +144,28 @@ variable "registration_email_address" {
 variable "kms_key_multi_region" {
   type        = bool
   default     = false
-  description = "Indicates whether the KMS key is a multi-Region (true) or regional (false) key."
+  description = "Indicates whether the KMS key is a multi-Region (true) or regional (false) key. This is disable when kms_key_id != null."
 }
 
 variable "save_csr" {
   type    = bool
   default = false
+}
+
+variable "replica_regions" {
+  type        = list(string)
+  default     = []
+  description = "Secrets Manager Secondary Region"
+}
+
+variable "kms_key_id" {
+  type        = string
+  default     = null
+  description = "If kms_key_id != null then kms_key_enable_key_rotation, kms_key_deletion_window_in_days, kms_key_multi_region are ignored"
+}
+
+variable "kms_key_enabled" {
+  type        = bool
+  default     = true
+  description = "When this set to false kms_key_id is required."
 }

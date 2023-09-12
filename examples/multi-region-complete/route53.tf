@@ -15,29 +15,31 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./_data.tf
+##  ./examples/letsencrypt/route53.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-# The AWS region currently being used.
-data "aws_region" "current" {
+data "aws_route53_zone" "root" {
   count = module.context.enabled ? 1 : 0
+  name  = var.root_domain
+
 }
 
-# The AWS account id
-data "aws_caller_identity" "current" {
+resource "aws_route53_zone" "public" {
+  #checkov:skip=CKV2_AWS_38:skip Domain Name System Security Extensions (DNSSEC) signing for Route 53 hosted zones
+  #checkov:skip=CKV2_AWS_39:skip (DNS) query logging for Route 53 hosted zones
   count = module.context.enabled ? 1 : 0
+  name  = module.context.domain_name
+  tags  = module.context.tags
 }
 
-# The AWS partition (commercial or govcloud)
-data "aws_partition" "current" {
-  count = module.context.enabled ? 1 : 0
-}
-
-locals {
-  arn_prefix = "arn:${try(data.aws_partition.current[0].partition, "")}"
-  account_id = try(data.aws_caller_identity.current[0].account_id, "")
-  region     = try(data.aws_region.current[0].name, "")
+resource "aws_route53_record" "ns" {
+  count   = module.context.enabled ? 1 : 0
+  name    = module.context.id
+  type    = "NS"
+  zone_id = join("", data.aws_route53_zone.root[*].id)
+  records = length(aws_route53_zone.public) > 0 ? aws_route53_zone.public[0].name_servers : []
+  ttl     = 300
 }
 
 
