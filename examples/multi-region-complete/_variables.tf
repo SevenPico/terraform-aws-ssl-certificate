@@ -15,26 +15,24 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./examples/import-files-empty/_data.tf
+##  ./examples/letsencrypt/_variables.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-# The AWS region currently being used.
-data "aws_region" "current" {
-  count = module.context.enabled ? 1 : 0
+variable "root_domain" {}
+
+variable "save_csr" {
+  type    = bool
+  default = false
+}
+variable "vpc_cidr_block" {
+  type = string
+}
+variable "availability_zones" {
+  type = list(string)
 }
 
-# The AWS account id
-data "aws_caller_identity" "current" {
-  count = module.context.enabled ? 1 : 0
-}
-
-# The AWS partition (commercial or govcloud)
-data "aws_partition" "current" {
-  count = module.context.enabled ? 1 : 0
-}
-
-locals {
-  arn_prefix   = "arn:${try(data.aws_partition.current[0].partition, "")}"
-  arn_template = "${local.arn_prefix}:%s:${try(data.aws_region.current[0].name, "")}:${try(data.aws_caller_identity.current[0].account_id, "")}%s"
+variable "cloudtrail_log_storage_lifecycle_rules" {
+  type    = list(any)
+  default = []
 }
