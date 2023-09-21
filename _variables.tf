@@ -163,9 +163,3 @@ variable "kms_key_id" {
   default     = null
   description = "If kms_key_id != null then kms_key_enable_key_rotation, kms_key_deletion_window_in_days, kms_key_multi_region are ignored"
 }
-
-variable "kms_key_enabled" {
-  type        = bool
-  default     = true
-  description = "When this set to false kms_key_id is required."
-}
