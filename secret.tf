@@ -54,7 +54,7 @@ locals {
     "${var.keyname_certificate}"       = local.certificate_to_save
     "${var.keyname_certificate_chain}" = local.certificate_chain_to_save
     "${var.keyname_private_key}"       = local.private_key_to_save
-  }) : 0
+  }) : {}
 }
 
 
