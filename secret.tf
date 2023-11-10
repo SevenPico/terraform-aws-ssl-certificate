@@ -45,7 +45,11 @@ locals {
   local.create_letsencrypt ? local.letsencrypt_private_key : "")
   csr_only_to_save = var.create_mode == "LetsEncryptCsrOnly" ? local.letsencrypt_csr : ""
 
-  secrets = local.create_letsencrypt_csr_only ? { "${var.keyname_certificate_signing_request}" = local.letsencrypt_csr } : var.create_mode == "" ? (var.save_csr ? {
+  letsencrypt_csr_only_secret = local.create_letsencrypt_csr_only ? {
+    "${var.keyname_certificate_signing_request}" = local.csr_to_save
+    } : {}
+
+  secrets = var.create_mode == "" ? (var.save_csr ? {
     "${var.keyname_certificate}"                 = local.certificate_to_save
     "${var.keyname_certificate_chain}"           = local.certificate_chain_to_save
     "${var.keyname_private_key}"                 = local.private_key_to_save
@@ -77,7 +81,7 @@ module "ssl_secret" {
   kms_key_multi_region            = var.kms_key_multi_region
   secret_ignore_changes           = local.ignore_secret_changes
   secret_read_principals          = var.secret_read_principals
-  secret_string                   = jsonencode(merge(local.secrets, var.additional_secrets))
+  secret_string                   = jsonencode(merge(local.secrets, var.additional_secrets,local.letsencrypt_csr_only_secret))
   sns_pub_principals              = var.secret_update_sns_pub_principals
   sns_sub_principals              = var.secret_update_sns_sub_principals
 }
