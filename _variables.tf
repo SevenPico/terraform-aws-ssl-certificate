@@ -54,8 +54,8 @@ variable "additional_secrets" {
 
 variable "common_name_override" {
   description = "When create_mode = LetsencryptCsrOnly add names that the csr will be created for"
-  type        = list(string)
-  default     = []
+  type        = string
+  default     = ""
 }
 
 variable "keyname_certificate" {
