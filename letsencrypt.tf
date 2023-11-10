@@ -53,10 +53,10 @@ resource "tls_cert_request" "this" {
   count = module.letsencrypt_context.enabled ? 1 : 0
 
   private_key_pem = tls_private_key.certificate_key[0].private_key_pem
-  dns_names       = var.create_wildcard ? ["*.${module.context.domain_name}"] : distinct(concat([module.context.domain_name], var.additional_dns_names))
+  dns_names       = var.create_wildcard ? ["*.${module.context.domain_name}"] : distinct(concat([module.context.dns_name], var.additional_dns_names))
 
   subject {
-    common_name = var.create_wildcard ? "*.${module.context.domain_name}" : module.context.domain_name
+    common_name = var.create_wildcard ? "*.${module.context.domain_name}" : module.context.dns_name
   }
 }
 
