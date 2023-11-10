@@ -38,18 +38,15 @@ module "ssl_certificate" {
 
   save_csr                            = var.save_csr
   additional_dns_names                = []
-  additional_secrets                  = {}
-  create_mode                         = "LetsEncryptCsrOnly"
+  additional_secrets                  = { EXAMPLE = "example value" }
+  create_mode                         = "LetsEncrypt"
   create_secret_update_sns            = true
   create_wildcard                     = true
-  common_name_override                = "manchesterutd"
   import_filepath_certificate         = null
   import_filepath_certificate_chain   = null
   import_filepath_csr                 = null
   import_filepath_private_key         = null
   import_secret_arn                   = null
-  kms_key_id                          = null
-  kms_key_multi_region                = false
   keyname_certificate                 = "CERTIFICATE"
   keyname_certificate_chain           = "CERTIFICATE_CHAIN"
   keyname_certificate_signing_request = "CERTIFICATE_SIGNING_REQUEST"
