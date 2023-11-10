@@ -47,6 +47,7 @@ module "ssl_certificate" {
   import_filepath_csr                 = null
   import_filepath_private_key         = null
   import_secret_arn                   = null
+  kms_key_id                          = null
   keyname_certificate                 = "CERTIFICATE"
   keyname_certificate_chain           = "CERTIFICATE_CHAIN"
   keyname_certificate_signing_request = "CERTIFICATE_SIGNING_REQUEST"
