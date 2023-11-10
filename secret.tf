@@ -45,9 +45,7 @@ locals {
   local.create_letsencrypt ? local.letsencrypt_private_key : "")
   csr_only_to_save = var.create_mode == "LetsEncryptCsrOnly" ? local.letsencrypt_csr : ""
 
-  letsencrypt_csr_only_secret = local.create_letsencrypt_csr_only ? {
-    "${var.keyname_certificate_signing_request}" = local.csr_to_save
-    } : {}
+  letsencrypt_csr_only_secret = local.create_letsencrypt_csr_only ? {"${var.keyname_certificate_signing_request}" = local.csr_to_save} : {}
 
   secrets = var.create_mode == "" ? (var.save_csr ? {
     "${var.keyname_certificate}"                 = local.certificate_to_save

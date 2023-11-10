@@ -42,7 +42,7 @@ module "ssl_certificate" {
   create_mode                         = "LetsEncryptCsrOnly"
   create_secret_update_sns            = true
   create_wildcard                     = true
-  common_name_override                = "manchesterutd"
+  common_name_override                = "grid"
   import_filepath_certificate         = null
   import_filepath_certificate_chain   = null
   import_filepath_csr                 = null

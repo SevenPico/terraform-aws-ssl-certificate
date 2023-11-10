@@ -26,7 +26,7 @@ module "letsencrypt_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
   context    = module.context.self
-  enabled    = module.context.enabled && local.create_letsencrypt
+  enabled    = module.context.enabled && local.create_letsencrypt && local.create_letsencrypt_csr_only
   attributes = ["letsencrypt"]
 }
 
