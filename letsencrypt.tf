@@ -65,8 +65,6 @@ resource "acme_certificate" "this" {
 
   account_key_pem           = acme_registration.this[0].account_key_pem
   certificate_request_pem   = tls_cert_request.this[0].cert_request_pem
-  common_name               = var.create_wildcard ? "*.${module.context.domain_name}" : module.context.dns_name
-  subject_alternative_names = distinct(concat([module.context.dns_name], var.additional_dns_names))
 
   dns_challenge {
     provider = "route53"
