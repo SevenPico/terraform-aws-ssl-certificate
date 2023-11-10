@@ -18,24 +18,14 @@
 ##  ./_variables.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
-
-locals {
-  create_acm_only    = var.create_mode == "ACM_Only" && module.context.enabled
-  create_letsencrypt = var.create_mode == "LetsEncrypt" && module.context.enabled
-  create_from_file   = var.create_mode == "From_File" && module.context.enabled
-  create_from_secret = var.create_mode == "From_Secret" && module.context.enabled
-
-  ignore_secret_changes = local.create_from_file
-}
-
 variable "create_mode" {
   type        = string
   description = "Set the operational mode of this module."
   default     = "LetsEncrypt"
 
   validation {
-    condition     = contains(["ACM_Only", "LetsEncrypt", "From_Secret", "From_File"], var.create_mode)
-    error_message = "The 'mode' must be one of [ACM_Only, LetsEncrypt, From_Secret, From_File]."
+    condition     = contains(["ACM_Only", "LetsEncrypt", "From_Secret", "From_File", "LetsEncryptCsrOnly"], var.create_mode)
+    error_message = "The 'mode' must be one of [ACM_Only, LetsEncrypt, From_Secret, From_File, LetsEncryptCsrOnly]."
   }
 }
 
@@ -60,6 +50,12 @@ variable "additional_secrets" {
   description = "Additonal key-value pairs to add to the created SecretsManager secret"
   type        = map(any)
   default     = {}
+}
+
+variable "common_name_override" {
+  description = "When create_mode = LetsencryptCsrOnly add names that the csr will be created for"
+  type        = string
+  default     = ""
 }
 
 variable "keyname_certificate" {

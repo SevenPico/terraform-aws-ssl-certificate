@@ -43,8 +43,9 @@ locals {
   local.create_letsencrypt ? local.letsencrypt_certificate_chain : "")
   private_key_to_save = local.create_from_file ? local.imported_file_private_key : (
   local.create_letsencrypt ? local.letsencrypt_private_key : "")
+  csr_only_to_save = var.create_mode == "LetsEncryptCsrOnly" ? local.letsencrypt_csr : ""
 
-  secrets = var.save_csr ? {
+  secrets = local.create_letsencrypt_csr_only ? { "${var.keyname_certificate_signing_request}" = local.csr_only_to_save } : var.create_mode == "" ? (var.save_csr ? {
     "${var.keyname_certificate}"                 = local.certificate_to_save
     "${var.keyname_certificate_chain}"           = local.certificate_chain_to_save
     "${var.keyname_private_key}"                 = local.private_key_to_save
@@ -53,7 +54,7 @@ locals {
     "${var.keyname_certificate}"       = local.certificate_to_save
     "${var.keyname_certificate_chain}" = local.certificate_chain_to_save
     "${var.keyname_private_key}"       = local.private_key_to_save
-  }
+  }) : 0
 }
 
 
@@ -66,8 +67,8 @@ module "ssl_secret" {
   context = module.context.self
   enabled = module.context.enabled && local.create_secret
 
-  create_sns  = var.create_secret_update_sns && !local.create_acm_only
-  description = "SSL Certificate and Private Key"
+  create_sns                      = var.create_secret_update_sns && !local.create_acm_only
+  description                     = "SSL Certificate and Private Key"
   kms_key_id                      = var.kms_key_id
   replica_regions                 = var.replica_regions
   kms_key_deletion_window_in_days = var.kms_key_deletion_window_in_days

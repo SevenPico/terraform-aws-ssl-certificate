@@ -24,8 +24,15 @@ locals {
   local.create_from_secret ? var.import_secret_arn : "")
 
   secrets_manager_document = local.secret_arn != "" ? jsondecode(one(data.aws_secretsmanager_secret_version.this[*].secret_string)) : {}
-}
 
+  create_acm_only             = var.create_mode == "ACM_Only" && module.context.enabled
+  create_letsencrypt          = var.create_mode == "LetsEncrypt" && module.context.enabled
+  create_letsencrypt_csr_only = var.create_mode == "LetsEncryptCsrOnly" && module.context.enabled
+  create_from_file            = var.create_mode == "From_File" && module.context.enabled
+  create_from_secret          = var.create_mode == "From_Secret" && module.context.enabled
+
+  ignore_secret_changes = local.create_from_file
+}
 
 data "aws_secretsmanager_secret_version" "this" {
   count      = module.context.enabled && !local.create_acm_only ? 1 : 0
@@ -40,7 +47,7 @@ data "aws_secretsmanager_secret_version" "this" {
 # ACM (Lets Encrypt, Imported from file or secret)
 # ------------------------------------------------------------------------------
 resource "aws_acm_certificate" "imported" {
-  count      = module.context.enabled && !local.create_acm_only ? 1 : 0
+  count      = module.context.enabled && !local.create_acm_only && !local.create_letsencrypt_csr_only ? 1 : 0
   depends_on = [module.ssl_secret]
 
   certificate_body  = lookup(local.secrets_manager_document, var.keyname_certificate, "")
@@ -61,7 +68,7 @@ module "acm_only" {
   source  = "SevenPicoForks/acm-request-certificate/aws"
   version = "2.0.0"
   context = module.context.self
-  enabled = module.context.enabled && local.create_acm_only
+  enabled = module.context.enabled && local.create_acm_only && !local.create_letsencrypt_csr_only
 
   domain_name                                 = var.create_wildcard ? "*.${module.context.domain_name}" : module.context.domain_name
   process_domain_validation_options           = true
@@ -70,7 +77,8 @@ module "acm_only" {
   certificate_transparency_logging_preference = true
   subject_alternative_names                   = var.create_wildcard ? [] : var.additional_dns_names
   wait_for_certificate_issued                 = false
-  validation_method                           = "DNS"
-  zone_id                                     = var.zone_id
-  zone_name                                   = ""
+
+  validation_method = "DNS"
+  zone_id           = var.zone_id
+  zone_name         = ""
 }
