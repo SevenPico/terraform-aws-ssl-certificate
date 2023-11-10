@@ -20,7 +20,7 @@
 ## ----------------------------------------------------------------------------
 
 locals {
-  create_secret = local.create_letsencrypt || local.create_from_file
+  create_secret = local.create_letsencrypt || local.create_from_file || local.create_letsencrypt_csr_only
 
   letsencrypt_csr         = one(tls_cert_request.this[*].cert_request_pem)
   letsencrypt_certificate = one(acme_certificate.this[*].certificate_pem)
