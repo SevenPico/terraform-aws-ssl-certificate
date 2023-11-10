@@ -22,38 +22,35 @@
 # ------------------------------------------------------------------------------
 # Let's Encrypt Certificate
 # ------------------------------------------------------------------------------
-locals {
-  enabled_letsencrypt = local.create_letsencrypt && local.create_letsencrypt_csr_only
-}
 module "letsencrypt_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
   context    = module.context.self
-  enabled    = module.context.enabled
+  enabled    = module.context.enabled && local.create_letsencrypt || module.context.enabled && local.create_letsencrypt_csr_only
   attributes = ["letsencrypt"]
 }
 
 resource "tls_private_key" "account_key" {
-  count = module.letsencrypt_context.enabled && local.enabled_letsencrypt ? 1 : 0
+  count = module.letsencrypt_context.enabled ? 1 : 0
 
   algorithm = "RSA"
 }
 
 resource "acme_registration" "this" {
-  count = module.letsencrypt_context.enabled && local.enabled_letsencrypt ? 1 : 0
+  count = module.letsencrypt_context.enabled ? 1 : 0
 
   account_key_pem = tls_private_key.account_key[0].private_key_pem
   email_address   = var.registration_email_address == "" ? "nobody@${module.context.domain_name}" : var.registration_email_address
 }
 
 resource "tls_private_key" "certificate_key" {
-  count = module.letsencrypt_context.enabled && local.enabled_letsencrypt ? 1 : 0
+  count = module.letsencrypt_context.enabled ? 1 : 0
 
   algorithm = "RSA"
 }
 
 resource "tls_cert_request" "this" {
-  count = module.letsencrypt_context.enabled && local.enabled_letsencrypt ? 1 : 0
+  count = module.letsencrypt_context.enabled ? 1 : 0
 
   private_key_pem = tls_private_key.certificate_key[0].private_key_pem
   dns_names       =  local.create_letsencrypt_csr_only ? [var.common_name_override] : (var.create_wildcard ? ["*.${module.context.domain_name}"] : distinct(concat([module.context.domain_name], var.additional_dns_names)))
