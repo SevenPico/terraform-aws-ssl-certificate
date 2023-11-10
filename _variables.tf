@@ -53,7 +53,7 @@ variable "additional_secrets" {
 }
 
 variable "common_name_override" {
-  description = "When create_mode = LetsencryptCsrOnly add names that the csr will be created for"
+  description = "Override names that the csr will be created for"
   type        = string
   default     = ""
 }
