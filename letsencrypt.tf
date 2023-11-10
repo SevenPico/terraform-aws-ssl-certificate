@@ -56,7 +56,7 @@ resource "tls_cert_request" "this" {
   dns_names       = var.create_wildcard ? ["*.${module.context.domain_name}"] : distinct(concat([module.context.dns_name], var.additional_dns_names))
 
   subject {
-    common_name = var.create_wildcard ? "*.${module.context.domain_name}" : module.context.dns_name
+    common_name = var.create_wildcard ? "*.${module.context.domain_name}" : module.context.domain_name
   }
 }
 
