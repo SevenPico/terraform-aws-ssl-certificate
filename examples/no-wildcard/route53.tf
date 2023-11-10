@@ -35,7 +35,7 @@ resource "aws_route53_zone" "public" {
 
 resource "aws_route53_record" "ns" {
   count   = module.context.enabled ? 1 : 0
-  name    = module.context.id
+  name    = module.context.domain_name
   type    = "NS"
   zone_id = join("", data.aws_route53_zone.root[*].id)
   records = length(aws_route53_zone.public) > 0 ? aws_route53_zone.public[0].name_servers : []
