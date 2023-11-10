@@ -47,7 +47,7 @@ data "aws_secretsmanager_secret_version" "this" {
 # ACM (Lets Encrypt, Imported from file or secret)
 # ------------------------------------------------------------------------------
 resource "aws_acm_certificate" "imported" {
-  count      = module.context.enabled && !local.create_acm_only && !local.create_letsencrypt_csr_only ? 1 : 0
+  count      = module.context.enabled && !local.create_acm_only ? 1 : 0
   depends_on = [module.ssl_secret]
 
   certificate_body  = lookup(local.secrets_manager_document, var.keyname_certificate, "")
@@ -68,7 +68,7 @@ module "acm_only" {
   source  = "SevenPicoForks/acm-request-certificate/aws"
   version = "2.0.0"
   context = module.context.self
-  enabled = module.context.enabled && local.create_acm_only && !local.create_letsencrypt_csr_only
+  enabled = module.context.enabled && local.create_acm_only
 
   domain_name                                 = var.create_wildcard ? "*.${module.context.domain_name}" : module.context.domain_name
   process_domain_validation_options           = true
