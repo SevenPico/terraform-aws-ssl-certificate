@@ -66,8 +66,8 @@ module "ssl_secret" {
   context = module.context.self
   enabled = module.context.enabled && local.create_secret
 
-  create_sns  = var.create_secret_update_sns && !local.create_acm_only
-  description = "SSL Certificate and Private Key"
+  create_sns                      = var.create_secret_update_sns && !local.create_acm_only
+  description                     = "SSL Certificate and Private Key"
   kms_key_id                      = var.kms_key_id
   replica_regions                 = var.replica_regions
   kms_key_deletion_window_in_days = var.kms_key_deletion_window_in_days

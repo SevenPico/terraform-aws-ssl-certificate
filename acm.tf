@@ -58,8 +58,9 @@ resource "aws_acm_certificate" "imported" {
 # ACM (AWS Managed)
 # ------------------------------------------------------------------------------
 module "acm_only" {
-  source  = "SevenPicoForks/acm-request-certificate/aws"
-  version = "2.0.0"
+  #  source  = "SevenPicoForks/acm-request-certificate/aws"
+  #  version = "2.0.0"
+  source  = "git::https://github.com/SevenPicoForks/terraform-aws-acm-request-certificate.git?ref=feature/aws_version_change"
   context = module.context.self
   enabled = module.context.enabled && local.create_acm_only
 
