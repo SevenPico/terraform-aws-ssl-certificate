@@ -51,6 +51,7 @@ module "ssl_certificate" {
   keyname_certificate_chain           = "CERTIFICATE_CHAIN"
   keyname_certificate_signing_request = "CERTIFICATE_SIGNING_REQUEST"
   keyname_private_key                 = "CERTIFICATE_PRIVATE_KEY"
+  kms_key_id                          = null
   kms_key_deletion_window_in_days     = 7
   kms_key_enable_key_rotation         = false
   secret_read_principals              = {}
