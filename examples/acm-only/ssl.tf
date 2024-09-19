@@ -40,6 +40,7 @@ module "ssl_certificate" {
   additional_dns_names                = []
   additional_secrets                  = { EXAMPLE = "example value" }
   create_mode                         = "ACM_Only"
+  create_wildcard                     = false
   create_secret_update_sns            = true
   import_filepath_certificate         = null
   import_filepath_certificate_chain   = null
